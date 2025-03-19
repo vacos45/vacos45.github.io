@@ -8,26 +8,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const refreshBtn = document.getElementById('refreshBtn');
     const closeBtn = document.getElementById('closeBtn');
     
-    // Public CORS proxies that can be used
+    // Public CORS proxies that are more likely to work
     const corsProxies = [
-        'https://api.allorigins.win/raw?url=',
         'https://corsproxy.io/?',
-        'https://cors-anywhere.herokuapp.com/',
+        'https://api.allorigins.win/raw?url=',
         'https://api.codetabs.com/v1/proxy?quest=',
+        'https://thingproxy.freeboard.io/fetch/',
+        'https://cors-anywhere.herokuapp.com/',
         'https://cors-proxy.htmldriven.com/?url=',
         'https://crossorigin.me/',
-        'https://thingproxy.freeboard.io/fetch/',
         'https://yacdn.org/proxy/',
         'https://cors.bridged.cc/',
-        'https://crossorigin.root.sx/',
-        'https://proxy.cors.sh/',
-        'https://corsproxy.github.io/?',
-        'https://fastly-cors-anywhere.herokuapp.com/',
-        'https://cors.samiprogramming.fi/?url=',
-        'https://corsproxy.fly.dev/',
-        'https://nine4.workers.dev/?url=',
-        'https://bypass.fish/api/v1/proxy?url=',
-        'https://bypass.churchless.tech/proxy?url='
+        'https://proxy.cors.sh/'
     ];
     
     // Default proxy index
@@ -45,8 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // URL encoding modes to try
     const encodingModes = [
         url => encodeURIComponent(url),
-        url => btoa(url),
         url => url,
+        url => btoa(url),
         url => encodeURIComponent(btoa(url))
     ];
     
@@ -70,12 +62,18 @@ document.addEventListener('DOMContentLoaded', function() {
         proxyUrl.textContent = url;
         proxyViewer.classList.add('active');
         
+        // Reset retry counter
+        retriesCount = 0;
+        
         // Load content through the proxy
         loadThroughProxy(url);
         
         // Scroll to the proxy viewer
         proxyViewer.scrollIntoView({ behavior: 'smooth' });
     }
+    
+    // Global retries count
+    let retriesCount = 0;
     
     // Load content through proxy
     function loadThroughProxy(url) {
@@ -143,24 +141,33 @@ document.addEventListener('DOMContentLoaded', function() {
         // Use the current proxy with the selected encoding
         const proxyUrl = corsProxies[currentProxyIndex] + encodingMode(url);
         
-        // Fetch options with headers to help bypass filters
+        // Create headers
+        const headers = new Headers({
+            'User-Agent': randomUserAgent,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'text/html,application/xhtml+xml,application/xml',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'DNT': '1'
+        });
+        
+        // Fetch options
         const fetchOptions = {
-            headers: {
-                'User-Agent': randomUserAgent,
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'text/html,application/xhtml+xml,application/xml',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'DNT': '1'
-            },
+            headers: headers,
             cache: 'no-store',
             redirect: 'follow',
             referrerPolicy: 'no-referrer'
         };
         
         // Attempt to fetch content through proxy
-        tryFetchWithTimeout(proxyUrl, fetchOptions)
+        fetch(proxyUrl, fetchOptions)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.text();
+            })
             .then(html => {
                 if (!html || html.length === 0) {
                     throw new Error('Empty response received');
@@ -189,7 +196,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
-                // Show error message if all proxies failed
+                // If all proxies failed, try the alternate method
+                if (retriesCount === corsProxies.length) {
+                    retriesCount++;
+                    loadThroughProxyAlt(url);
+                    return;
+                }
+                
+                // Show error message if all methods failed
                 proxyFrame.srcdoc = `
                     <html>
                     <head>
@@ -219,12 +233,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 cursor: pointer;
                                 margin-top: 20px;
                             }
-                            .options {
-                                display: flex;
-                                justify-content: center;
-                                gap: 10px;
-                                margin-top: 20px;
-                            }
                         </style>
                     </head>
                     <body>
@@ -233,14 +241,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             <p>Unable to load the requested URL through our proxies.</p>
                             <p>Error: ${error.message}</p>
                             <p>We've tried multiple proxy services without success.</p>
-                            <div class="options">
-                                <button class="retry-btn" onclick="window.parent.document.getElementById('refreshBtn').click()">
-                                    Try Again
-                                </button>
-                                <button class="retry-btn" style="background-color: #4caf50;" onclick="window.parent.retryWithAltMethod('${url}')">
-                                    Try Alternative Method
-                                </button>
-                            </div>
+                            <button class="retry-btn" onclick="window.parent.document.getElementById('refreshBtn').click()">
+                                Try Again
+                            </button>
                         </div>
                     </body>
                     </html>
@@ -248,39 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
     
-    // Global retries count
-    let retriesCount = 0;
-    
-    // Alternative method function exposed to window for iframe access
-    window.retryWithAltMethod = function(url) {
-        retriesCount = 0;
-        // Reset proxy index to try different approach
-        currentProxyIndex = Math.floor(Math.random() * corsProxies.length);
-        loadThroughProxyAlt(url);
-    };
-    
-    // Alternative fetch approach with timeout
-    function tryFetchWithTimeout(url, options, timeout = 10000) {
-        return new Promise((resolve, reject) => {
-            // Set timeout
-            const timeoutId = setTimeout(() => {
-                reject(new Error('Request timed out'));
-            }, timeout);
-            
-            fetch(url, options)
-                .then(response => {
-                    clearTimeout(timeoutId);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.text();
-                })
-                .then(resolve)
-                .catch(reject);
-        });
-    }
-    
-    // Alternative proxy approach using data URI
+    // Alternative proxy approach
     function loadThroughProxyAlt(url) {
         // Show loading state
         proxyFrame.srcdoc = `
@@ -316,46 +287,74 @@ document.addEventListener('DOMContentLoaded', function() {
             </html>
         `;
         
-        // Use jsonp approach for alternative method
-        const script = document.createElement('script');
-        const callbackName = 'proxyCallback' + Math.floor(Math.random() * 1000000);
-        
-        // Different approach using another set of proxies
+        // Different approach using jsonp
         const altProxies = [
-            `https://api.allorigins.win/get?url=${encodeURIComponent(url)}&callback=${callbackName}`,
+            `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
             `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-            `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(url)}`
+            `https://corsproxy.io/?${encodeURIComponent(url)}`
         ];
         
         const selectedAltProxy = altProxies[Math.floor(Math.random() * altProxies.length)];
-        script.src = selectedAltProxy;
         
-        // Define callback function
-        window[callbackName] = function(data) {
-            // Clean up
-            document.body.removeChild(script);
-            delete window[callbackName];
-            
-            try {
-                // Extract content from proxy response
-                let html = '';
-                if (data.contents) {
-                    html = data.contents;
-                } else if (data.response) {
-                    html = data.response;
-                } else {
-                    html = JSON.stringify(data);
+        fetch(selectedAltProxy)
+            .then(response => response.text())
+            .then(data => {
+                try {
+                    // Try to parse as JSON
+                    let html = '';
+                    try {
+                        const parsedData = JSON.parse(data);
+                        if (parsedData.contents) {
+                            html = parsedData.contents;
+                        } else {
+                            html = data;
+                        }
+                    } catch (e) {
+                        // If parsing failed, use the raw data
+                        html = data;
+                    }
+                    
+                    // Process HTML
+                    const processedHtml = processHtml(html, url);
+                    
+                    // Create blob and load in iframe
+                    const blob = new Blob([processedHtml], { type: 'text/html;charset=utf-8' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    proxyFrame.src = blobUrl;
+                } catch (error) {
+                    console.error('Error processing alternative proxy data:', error);
+                    proxyFrame.srcdoc = `
+                        <html>
+                        <head>
+                            <style>
+                                body {
+                                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                    text-align: center;
+                                    padding: 50px;
+                                    color: #333;
+                                }
+                                .error {
+                                    background-color: #ffebee;
+                                    padding: 20px;
+                                    border-radius: 10px;
+                                    margin: 20px auto;
+                                    max-width: 600px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="error">
+                                <h2>All Proxy Methods Failed</h2>
+                                <p>We were unable to bypass the restrictions for this website.</p>
+                                <p>Please try a different website or try again later.</p>
+                            </div>
+                        </body>
+                        </html>
+                    `;
                 }
-                
-                // Process HTML
-                const processedHtml = processHtml(html, url);
-                
-                // Create blob and load in iframe
-                const blob = new Blob([processedHtml], { type: 'text/html;charset=utf-8' });
-                const blobUrl = URL.createObjectURL(blob);
-                proxyFrame.src = blobUrl;
-            } catch (error) {
-                console.error('Error processing alternative proxy data:', error);
+            })
+            .catch(error => {
+                console.error('Error with alternative proxy:', error);
                 proxyFrame.srcdoc = `
                     <html>
                     <head>
@@ -377,54 +376,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     </head>
                     <body>
                         <div class="error">
-                            <h2>All Proxy Methods Failed</h2>
-                            <p>We were unable to bypass the restrictions for this website.</p>
-                            <p>Please try a different website or try again later.</p>
+                            <h2>Alternative Method Failed</h2>
+                            <p>We were unable to bypass the restrictions using alternative methods.</p>
+                            <p>This website may be heavily protected or the content might not be accessible.</p>
                         </div>
                     </body>
                     </html>
                 `;
-            }
-        };
-        
-        // Handle errors with the script
-        script.onerror = function() {
-            document.body.removeChild(script);
-            delete window[callbackName];
-            
-            proxyFrame.srcdoc = `
-                <html>
-                <head>
-                    <style>
-                        body {
-                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                            text-align: center;
-                            padding: 50px;
-                            color: #333;
-                        }
-                        .error {
-                            background-color: #ffebee;
-                            padding: 20px;
-                            border-radius: 10px;
-                            margin: 20px auto;
-                            max-width: 600px;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="error">
-                        <h2>Alternative Method Failed</h2>
-                        <p>We were unable to bypass the restrictions using alternative methods.</p>
-                        <p>This website may be heavily protected or the content might not be accessible.</p>
-                    </div>
-                </body>
-                </html>
-            `;
-        };
-        
-        // Add to document to start the request
-        document.body.appendChild(script);
-    }
+            });
     }
     
     // Process HTML to fix relative URLs and enhance proxy bypassing
@@ -486,16 +445,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const xfoMetaTags = doc.querySelectorAll('meta[http-equiv="X-Frame-Options"]');
         xfoMetaTags.forEach(tag => tag.remove());
         
-        // Fix form submissions
-        const forms = doc.querySelectorAll('form');
-        forms.forEach(form => {
-            form.setAttribute('target', '_blank');
-            
-            // Add our own event listener via script for forms
-            const formId = 'proxy_form_' + Math.random().toString(36).substring(2, 9);
-            form.setAttribute('id', formId);
-        });
-        
         // Add proxy script for handling clicks and form submissions
         const proxyScript = doc.createElement('script');
         proxyScript.textContent = `
@@ -549,18 +498,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }, true);
             
-            // Fix AJAX requests
-            const originalXHROpen = XMLHttpRequest.prototype.open;
-            XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
-                let newUrl = url;
-                if (!url.match(/^https?:\\/\\//)) {
-                    const base = document.querySelector('base');
-                    const baseHref = base ? base.href : '${baseUrl}';
-                    newUrl = new URL(url, baseHref).href;
-                }
-                originalXHROpen.call(this, method, newUrl, async, user, password);
-            };
-            
             // Notify parent when loaded
             window.addEventListener('DOMContentLoaded', function() {
                 window.parent.postMessage({ type: 'pageLoaded', title: document.title }, '*');
@@ -576,15 +513,7 @@ document.addEventListener('DOMContentLoaded', function() {
             doc.documentElement.appendChild(body);
         }
         
-        // Add additional meta tags for responsiveness
-        const viewport = doc.createElement('meta');
-        viewport.setAttribute('name', 'viewport');
-        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
-        if (doc.head) {
-            doc.head.appendChild(viewport);
-        }
-        
-        // Add proxy style overrides to handle common issues
+        // Add proxy style overrides
         const styleOverrides = doc.createElement('style');
         styleOverrides.textContent = `
             /* Fix for X-Frame-Options: DENY workarounds */
@@ -641,6 +570,52 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isValidUrl(url)) {
                 showProxyViewer(url);
             }
+        } else if (event.data && event.data.type === 'formSubmit') {
+            const url = event.data.url;
+            const method = event.data.method;
+            const data = JSON.parse(event.data.data);
+            
+            // Handle form submission
+            if (method.toLowerCase() === 'get') {
+                // For GET requests, append data to URL as query parameters
+                const urlObj = new URL(url);
+                for (const [key, value] of Object.entries(data)) {
+                    urlObj.searchParams.append(key, value);
+                }
+                showProxyViewer(urlObj.href);
+            } else {
+                // For POST requests, show a message that we can't handle them yet
+                proxyFrame.srcdoc = `
+                    <html>
+                    <head>
+                        <style>
+                            body {
+                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                text-align: center;
+                                padding: 50px;
+                                color: #333;
+                            }
+                            .info {
+                                background-color: #e3f2fd;
+                                padding: 20px;
+                                border-radius: 10px;
+                                margin: 20px auto;
+                                max-width: 600px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="info">
+                            <h2>Form Submission</h2>
+                            <p>This proxy cannot handle POST form submissions yet.</p>
+                            <p>URL: ${url}</p>
+                            <p>Method: ${method}</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    </body>
+                    </html>
+                `;
+            }
         }
     });
     
@@ -651,6 +626,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentUrl) {
                 // Try the next proxy
                 currentProxyIndex = (currentProxyIndex + 1) % corsProxies.length;
+                retriesCount = 0;
                 showProxyViewer(currentUrl);
             }
         });
