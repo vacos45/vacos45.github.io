@@ -3,317 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoDevTools - Roblox Development Resources</title>
+    <title>Advanced Kali Linux Penetration Testing Tools Guide</title>
+    <meta name="description" content="Interactive guide for Kali Linux penetration testing tools with command syntax, ethical usage, and detailed explanations">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">
-                <h1>RoDevTools</h1>
+    <!-- Navigation Bar -->
+    <nav id="main-nav">
+        <div class="container">
+            <div class="nav-brand">
+                <img src="https://same-assets.com/i/0977a97e-4c04-4f2e-98de-0e77ab5f8f60/kali-logo.svg" alt="Kali Linux Logo" class="logo">
+                <h1>Kali Linux Tools Guide</h1>
             </div>
-            <ul class="nav-links">
-                <li><a href="#home" class="active">Home</a></li>
-                <li><a href="#scripts">Scripts</a></li>
-                <li><a href="#tools">Tools</a></li>
-                <li><a href="#tutorials">Tutorials</a></li>
-                <li><a href="#community">Community</a></li>
-            </ul>
-            <div class="hamburger">
-                <div class="line"></div>
-                <div class="line"></div>
-                <div class="line"></div>
+            <div class="nav-links">
+                <ul>
+                    <li><a href="#wireless-tools" class="nav-link">Wireless Tools</a></li>
+                    <li><a href="#web-apps" class="nav-link">Web Apps</a></li>
+                    <li><a href="#forensics" class="nav-link">Forensics</a></li>
+                    <li><a href="#terminal" class="nav-link">Terminal</a></li>
+                </ul>
             </div>
-        </nav>
-        
-        <div class="hero" id="home">
+            <div class="difficulty-selector">
+                <span>Difficulty: </span>
+                <button id="basic-mode" class="difficulty-btn active">Basic</button>
+                <button id="advanced-mode" class="difficulty-btn">Advanced</button>
+                <button id="expert-mode" class="difficulty-btn">Expert</button>
+            </div>
+            <button id="menu-toggle" class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Ethics Banner (persistent) -->
+    <div id="ethics-banner" class="ethics-banner">
+        <div class="container">
+            <p><i class="fas fa-shield-alt"></i> <strong>Ethical Notice:</strong> These tools should only be used on systems you own or have explicit permission to test. Unauthorized usage is illegal.</p>
+            <button id="ethics-dismiss" class="dismiss-btn"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <header id="hero">
+        <div class="container">
+            <div class="terminal-header">
+                <div class="terminal-title-bar">
+                    <div class="terminal-buttons">
+                        <span class="terminal-btn close"></span>
+                        <span class="terminal-btn minimize"></span>
+                        <span class="terminal-btn maximize"></span>
+                    </div>
+                    <div class="terminal-title">kali@kali:~</div>
+                </div>
+                <div class="terminal-content">
+                    <div class="typing-text">
+                        <span class="prompt">kali@kali:~$ </span>
+                        <span id="dynamic-text" class="command-text"></span>
+                        <span class="cursor">|</span>
+                    </div>
+                </div>
+            </div>
             <div class="hero-content">
-                <h1>Enhance Your Roblox Development</h1>
-                <p>Access powerful tools, scripts and resources to take your Roblox games to the next level</p>
-                <div class="cta-buttons">
-                    <a href="#tools" class="cta-primary">Explore Tools</a>
-                    <a href="#scripts" class="cta-secondary">Browse Scripts</a>
+                <h2>Master the Art of Ethical Penetration Testing</h2>
+                <p>An interactive guide to the most powerful tools in Kali Linux's arsenal</p>
+                <div class="search-container">
+                    <input type="text" id="tool-search" placeholder="Search for a tool...">
+                    <button id="search-btn"><i class="fas fa-search"></i></button>
                 </div>
             </div>
         </div>
     </header>
 
+    <!-- Tools Section -->
     <main>
-        <section id="features" class="features">
-            <h2 class="section-title">Why Choose RoDevTools?</h2>
-            <div class="features-container">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <h3>Premium Scripts</h3>
-                    <p>Access our library of high-quality, optimized Lua scripts to enhance your game functionality</p>
+        <!-- Filter and Info Bar -->
+        <section id="filter-bar">
+            <div class="container">
+                <div class="filter-controls">
+                    <button class="filter-btn active" data-filter="all">All Tools</button>
+                    <button class="filter-btn" data-filter="wireless-tools">Wireless</button>
+                    <button class="filter-btn" data-filter="web-apps">Web Apps</button>
+                    <button class="filter-btn" data-filter="forensics">Forensics</button>
+                    <button class="filter-btn" data-filter="exploitation">Exploitation</button>
+                    <button class="filter-btn" data-filter="reconnaissance">Reconnaissance</button>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-tools"></i>
-                    </div>
-                    <h3>Development Tools</h3>
-                    <p>Use our custom-built tools to streamline your workflow and build games faster</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <h3>Learning Resources</h3>
-                    <p>Learn from our extensive tutorials and documentation for all skill levels</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>Active Community</h3>
-                    <p>Join thousands of developers sharing knowledge and collaborating</p>
+                <div class="view-toggle">
+                    <button id="grid-view" class="view-btn active"><i class="fas fa-th"></i></button>
+                    <button id="list-view" class="view-btn"><i class="fas fa-list"></i></button>
                 </div>
             </div>
         </section>
 
-        <section id="scripts" class="scripts">
-            <h2 class="section-title">Popular Scripts</h2>
-            <div class="scripts-container">
-                <div class="script-card">
-                    <div class="script-image">
-                        <img src="https://same-assets.com/e1bc2d14-a98d-440f-915c-84fd7d562a32" alt="Admin Commands">
-                    </div>
-                    <div class="script-content">
-                        <h3>Admin Commands Panel</h3>
-                        <p>Comprehensive admin system with 50+ commands for game moderation</p>
-                        <div class="script-meta">
-                            <span><i class="fas fa-download"></i> 25K+</span>
-                            <span><i class="fas fa-star"></i> 4.8/5</span>
-                        </div>
-                        <a href="#" class="script-btn">View Details</a>
-                    </div>
-                </div>
-                <div class="script-card">
-                    <div class="script-image">
-                        <img src="https://same-assets.com/e8cf6215-4de1-40b4-8dc2-81bfd9a7afd4" alt="Physics Engine">
-                    </div>
-                    <div class="script-content">
-                        <h3>Advanced Physics Engine</h3>
-                        <p>Custom physics implementation for realistic object interactions</p>
-                        <div class="script-meta">
-                            <span><i class="fas fa-download"></i> 18K+</span>
-                            <span><i class="fas fa-star"></i> 4.6/5</span>
-                        </div>
-                        <a href="#" class="script-btn">View Details</a>
-                    </div>
-                </div>
-                <div class="script-card">
-                    <div class="script-image">
-                        <img src="https://same-assets.com/0f7b90ba-b384-4878-aef3-d9c4c5e2e2d9" alt="GUI Framework">
-                    </div>
-                    <div class="script-content">
-                        <h3>GUI Framework Pro</h3>
-                        <p>Modular UI system for creating beautiful in-game interfaces</p>
-                        <div class="script-meta">
-                            <span><i class="fas fa-download"></i> 22K+</span>
-                            <span><i class="fas fa-star"></i> 4.9/5</span>
-                        </div>
-                        <a href="#" class="script-btn">View Details</a>
-                    </div>
-                </div>
-            </div>
-            <div class="view-all">
-                <a href="#" class="view-all-btn">View All Scripts <i class="fas fa-arrow-right"></i></a>
-            </div>
-        </section>
-
-        <section id="tools" class="tools">
-            <h2 class="section-title">Development Tools</h2>
-            <div class="tools-container">
-                <div class="tool-card">
-                    <div class="tool-icon">
-                        <i class="fas fa-map"></i>
-                    </div>
-                    <h3>Terrain Generator</h3>
-                    <p>Generate complex landscapes with our procedural terrain tool</p>
-                    <a href="#" class="tool-btn">Download</a>
-                </div>
-                <div class="tool-card">
-                    <div class="tool-icon">
-                        <i class="fas fa-paint-brush"></i>
-                    </div>
-                    <h3>Material Designer</h3>
-                    <p>Create custom materials and textures for your game environments</p>
-                    <a href="#" class="tool-btn">Download</a>
-                </div>
-                <div class="tool-card">
-                    <div class="tool-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h3>NPC AI Builder</h3>
-                    <p>Design complex AI behaviors without advanced coding knowledge</p>
-                    <a href="#" class="tool-btn">Download</a>
-                </div>
-                <div class="tool-card">
-                    <div class="tool-icon">
-                        <i class="fas fa-bug"></i>
-                    </div>
-                    <h3>Script Debugger</h3>
-                    <p>Advanced debugging tools to identify and fix code issues fast</p>
-                    <a href="#" class="tool-btn">Download</a>
+        <!-- Tool Cards Section -->
+        <section id="tools-container">
+            <div class="container">
+                <div class="tools-grid" id="tools-grid">
+                    <!-- Cards will be dynamically populated here -->
                 </div>
             </div>
         </section>
 
-        <section id="tutorials" class="tutorials">
-            <h2 class="section-title">Latest Tutorials</h2>
-            <div class="tutorials-container">
-                <div class="tutorial-card">
-                    <div class="tutorial-image">
-                        <img src="https://same-assets.com/9c25fd96-7c75-46d3-9f16-c0dc80d1b542" alt="Lua Scripting">
-                        <div class="tutorial-difficulty beginner">Beginner</div>
+        <!-- Terminal Simulator Section -->
+        <section id="terminal">
+            <div class="container">
+                <h2><i class="fas fa-terminal"></i> Interactive Terminal Simulator</h2>
+                <div class="terminal-simulator">
+                    <div class="terminal-window">
+                        <div class="terminal-title-bar">
+                            <div class="terminal-buttons">
+                                <span class="terminal-btn close"></span>
+                                <span class="terminal-btn minimize"></span>
+                                <span class="terminal-btn maximize"></span>
+                            </div>
+                            <div class="terminal-title">kali@kali:~</div>
+                        </div>
+                        <div class="terminal-content">
+                            <div id="terminal-output">
+                                <p><span class="output-text">Welcome to Kali Linux Terminal Simulator</span></p>
+                                <p><span class="output-text">Type a command or select from examples below</span></p>
+                            </div>
+                            <div class="terminal-input-line">
+                                <span class="prompt">kali@kali:~$ </span>
+                                <input type="text" id="terminal-input" placeholder="Enter command...">
+                            </div>
+                        </div>
                     </div>
-                    <div class="tutorial-content">
-                        <h3>Lua Scripting Fundamentals</h3>
-                        <p>Learn the basics of Lua programming for Roblox development</p>
-                        <a href="#" class="tutorial-link">Read Tutorial <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-                <div class="tutorial-card">
-                    <div class="tutorial-image">
-                        <img src="https://same-assets.com/d2a1f05e-def1-4f8a-83e0-d95118a59b2c" alt="Game Mechanics">
-                        <div class="tutorial-difficulty intermediate">Intermediate</div>
-                    </div>
-                    <div class="tutorial-content">
-                        <h3>Building Game Mechanics</h3>
-                        <p>Create engaging gameplay systems that keep players coming back</p>
-                        <a href="#" class="tutorial-link">Read Tutorial <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-                <div class="tutorial-card">
-                    <div class="tutorial-image">
-                        <img src="https://same-assets.com/5bf3c13c-cd5e-49eb-bf47-46e6ddc08658" alt="Performance Optimization">
-                        <div class="tutorial-difficulty advanced">Advanced</div>
-                    </div>
-                    <div class="tutorial-content">
-                        <h3>Performance Optimization</h3>
-                        <p>Learn techniques to make your games run smoothly with large player counts</p>
-                        <a href="#" class="tutorial-link">Read Tutorial <i class="fas fa-arrow-right"></i></a>
+                    <div class="terminal-examples">
+                        <h3>Example Commands:</h3>
+                        <div class="example-commands">
+                            <!-- Example buttons will be added dynamically -->
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="community" class="community">
-            <h2 class="section-title">Join Our Community</h2>
-            <div class="community-content">
-                <div class="community-text">
-                    <p>Connect with over 50,000 Roblox developers in our active community. Share your projects, get feedback, find collaborators, and stay updated with the latest development trends.</p>
-                    <div class="community-stats">
-                        <div class="stat">
-                            <h3>50K+</h3>
-                            <p>Members</p>
-                        </div>
-                        <div class="stat">
-                            <h3>1000+</h3>
-                            <p>Daily Active Users</p>
-                        </div>
-                        <div class="stat">
-                            <h3>200+</h3>
-                            <p>Expert Mentors</p>
-                        </div>
-                    </div>
-                    <div class="community-cta">
-                        <a href="#" class="discord-btn">
-                            <i class="fab fa-discord"></i> Join Our Discord
-                        </a>
-                        <a href="#" class="forum-btn">
-                            <i class="fas fa-comments"></i> Visit Forums
-                        </a>
-                    </div>
+        <!-- Bookmarked Commands Section -->
+        <section id="bookmarks">
+            <div class="container">
+                <h2><i class="fas fa-bookmark"></i> Bookmarked Commands</h2>
+                <div class="bookmarks-container" id="bookmarks-container">
+                    <p class="no-bookmarks">No bookmarks yet. Click the bookmark icon on any command to save it here.</p>
                 </div>
-                <div class="community-image">
-                    <img src="https://same-assets.com/a7c6fe1e-6e5f-4af4-be47-32e1c16fa51f" alt="RoDevTools Community">
-                </div>
-            </div>
-        </section>
-
-        <section class="newsletter">
-            <div class="newsletter-content">
-                <h2>Stay Updated</h2>
-                <p>Subscribe to our newsletter to receive the latest updates, tools, and resources</p>
-                <form class="newsletter-form">
-                    <input type="email" placeholder="Enter your email" required>
-                    <button type="submit">Subscribe</button>
-                </form>
             </div>
         </section>
     </main>
 
+    <!-- Footer -->
     <footer>
-        <div class="footer-content">
-            <div class="footer-column">
-                <h3>RoDevTools</h3>
-                <p>Empowering Roblox developers with professional tools and resources since 2023.</p>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-discord"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
-                    <a href="#"><i class="fab fa-github"></i></a>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About This Guide</h3>
+                    <p>This guide is intended for educational purposes only. Always practice ethical hacking and obtain proper authorization before testing any systems.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Ethical Guidelines</h3>
+                    <ul>
+                        <li>Never use these tools on systems without permission</li>
+                        <li>Document all testing activities thoroughly</li>
+                        <li>Report vulnerabilities responsibly</li>
+                        <li>Keep client data confidential</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="https://www.kali.org/docs/" target="_blank">Official Kali Documentation</a></li>
+                        <li><a href="https://www.offensive-security.com/" target="_blank">Offensive Security</a></li>
+                        <li><a href="https://owasp.org/" target="_blank">OWASP</a></li>
+                    </ul>
                 </div>
             </div>
-            <div class="footer-column">
-                <h3>Resources</h3>
-                <ul>
-                    <li><a href="#scripts">Scripts</a></li>
-                    <li><a href="#tools">Tools</a></li>
-                    <li><a href="#tutorials">Tutorials</a></li>
-                    <li><a href="#">Documentation</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h3>Community</h3>
-                <ul>
-                    <li><a href="#">Discord Server</a></li>
-                    <li><a href="#">Forums</a></li>
-                    <li><a href="#">Blog</a></li>
-                    <li><a href="#">Events</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h3>Support</h3>
-                <ul>
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                    <li><a href="#">Bug Reports</a></li>
-                    <li><a href="#">Feature Requests</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 RoDevTools. All rights reserved.</p>
-            <div class="footer-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Cookie Policy</a>
+            <div class="copyright">
+                <p>&copy; 2025 Kali Linux Tools Guide | Educational Use Only</p>
             </div>
         </div>
     </footer>
 
-    <script>
-        // Mobile navigation toggle
-        document.querySelector('.hamburger').addEventListener('click', function() {
-            document.querySelector('.nav-links').classList.toggle('nav-active');
-            document.querySelector('.hamburger').classList.toggle('toggle');
-        });
+    <!-- Ethics Confirmation Modal -->
+    <div id="ethics-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Ethical Use Agreement</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>The tools and techniques described in this guide are powerful and can cause serious damage if misused.</p>
+                <p><strong>By continuing to use this guide, you agree to:</strong></p>
+                <ul>
+                    <li>Only use these tools on systems you own or have explicit permission to test</li>
+                    <li>Follow all applicable laws and regulations in your jurisdiction</li>
+                    <li>Practice responsible disclosure of any vulnerabilities discovered</li>
+                    <li>Use this knowledge to improve security, not to exploit others</li>
+                </ul>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="ethics-checkbox">
+                    <label for="ethics-checkbox">I understand and agree to use these tools ethically and responsibly</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="ethics-agree" class="agree-btn" disabled>I Agree</button>
+            </div>
+        </div>
+    </div>
 
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
