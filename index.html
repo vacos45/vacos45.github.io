@@ -3,102 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Scanner Pro</title>
+    <title>RoDevTools - Roblox Development Resources</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>IP Scanner Pro</h1>
-            <p class="tagline">Comprehensive network analysis tool</p>
-        </header>
-
-        <div class="main-content">
-            <div class="scanner-panel">
-                <div class="input-section">
-                    <div class="input-group">
-                        <label for="ip-input">IP Address or Domain</label>
-                        <input type="text" id="ip-input" placeholder="Enter IP address, domain, or range (e.g., 192.168.1.1 or example.com)">
-                    </div>
-
-                    <div class="scan-options">
-                        <h3>Scan Options</h3>
-                        <div class="options-grid">
-                            <div class="option">
-                                <input type="checkbox" id="geo-lookup" checked>
-                                <label for="geo-lookup">Geolocation</label>
-                            </div>
-                            <div class="option">
-                                <input type="checkbox" id="reverse-dns" checked>
-                                <label for="reverse-dns">Reverse DNS</label>
-                            </div>
-                            <div class="option">
-                                <input type="checkbox" id="whois-info" checked>
-                                <label for="whois-info">WHOIS Info</label>
-                            </div>
-                            <div class="option">
-                                <input type="checkbox" id="ping-test" checked>
-                                <label for="ping-test">Ping Test</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button id="scan-btn" class="scan-button">Scan Now</button>
-                </div>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>RoDevTools</h1>
             </div>
-
-            <div class="results-container">
-                <div class="status-bar">
-                    <div id="scan-status">Ready to scan</div>
-                    <div class="spinner" id="loading-spinner"></div>
-                </div>
-
-                <div class="results-panel">
-                    <div class="ip-info-panel" id="ip-info">
-                        <h2>IP Information</h2>
-                        <div class="info-content" id="ip-details">
-                            <p class="placeholder-text">IP details will appear here after scanning</p>
-                        </div>
-                    </div>
-
-                    <div class="geo-panel" id="geo-panel">
-                        <h2>Geolocation</h2>
-                        <div class="info-content" id="geo-details">
-                            <p class="placeholder-text">Geolocation details will appear here after scanning</p>
-                        </div>
-                        <div id="map-container"></div>
-                    </div>
-
-                    <div class="network-panel" id="network-panel">
-                        <h2>Network Information</h2>
-                        <div class="info-content" id="network-details">
-                            <p class="placeholder-text">Network details will appear here after scanning</p>
-                        </div>
-                    </div>
-
-                    <div class="whois-panel" id="whois-panel">
-                        <h2>WHOIS Information</h2>
-                        <div class="info-content" id="whois-details">
-                            <p class="placeholder-text">WHOIS details will appear here after scanning</p>
-                        </div>
-                    </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#scripts">Scripts</a></li>
+                <li><a href="#tools">Tools</a></li>
+                <li><a href="#tutorials">Tutorials</a></li>
+                <li><a href="#community">Community</a></li>
+            </ul>
+            <div class="hamburger">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        </nav>
+        
+        <div class="hero" id="home">
+            <div class="hero-content">
+                <h1>Enhance Your Roblox Development</h1>
+                <p>Access powerful tools, scripts and resources to take your Roblox games to the next level</p>
+                <div class="cta-buttons">
+                    <a href="#tools" class="cta-primary">Explore Tools</a>
+                    <a href="#scripts" class="cta-secondary">Browse Scripts</a>
                 </div>
             </div>
         </div>
+    </header>
 
-        <div class="history-panel">
-            <h2>Scan History</h2>
-            <div class="history-list" id="scan-history">
-                <p class="placeholder-text">Your scan history will appear here</p>
+    <main>
+        <section id="features" class="features">
+            <h2 class="section-title">Why Choose RoDevTools?</h2>
+            <div class="features-container">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Premium Scripts</h3>
+                    <p>Access our library of high-quality, optimized Lua scripts to enhance your game functionality</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3>Development Tools</h3>
+                    <p>Use our custom-built tools to streamline your workflow and build games faster</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3>Learning Resources</h3>
+                    <p>Learn from our extensive tutorials and documentation for all skill levels</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Active Community</h3>
+                    <p>Join thousands of developers sharing knowledge and collaborating</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="scripts" class="scripts">
+            <h2 class="section-title">Popular Scripts</h2>
+            <div class="scripts-container">
+                <div class="script-card">
+                    <div class="script-image">
+                        <img src="https://same-assets.com/e1bc2d14-a98d-440f-915c-84fd7d562a32" alt="Admin Commands">
+                    </div>
+                    <div class="script-content">
+                        <h3>Admin Commands Panel</h3>
+                        <p>Comprehensive admin system with 50+ commands for game moderation</p>
+                        <div class="script-meta">
+                            <span><i class="fas fa-download"></i> 25K+</span>
+                            <span><i class="fas fa-star"></i> 4.8/5</span>
+                        </div>
+                        <a href="#" class="script-btn">View Details</a>
+                    </div>
+                </div>
+                <div class="script-card">
+                    <div class="script-image">
+                        <img src="https://same-assets.com/e8cf6215-4de1-40b4-8dc2-81bfd9a7afd4" alt="Physics Engine">
+                    </div>
+                    <div class="script-content">
+                        <h3>Advanced Physics Engine</h3>
+                        <p>Custom physics implementation for realistic object interactions</p>
+                        <div class="script-meta">
+                            <span><i class="fas fa-download"></i> 18K+</span>
+                            <span><i class="fas fa-star"></i> 4.6/5</span>
+                        </div>
+                        <a href="#" class="script-btn">View Details</a>
+                    </div>
+                </div>
+                <div class="script-card">
+                    <div class="script-image">
+                        <img src="https://same-assets.com/0f7b90ba-b384-4878-aef3-d9c4c5e2e2d9" alt="GUI Framework">
+                    </div>
+                    <div class="script-content">
+                        <h3>GUI Framework Pro</h3>
+                        <p>Modular UI system for creating beautiful in-game interfaces</p>
+                        <div class="script-meta">
+                            <span><i class="fas fa-download"></i> 22K+</span>
+                            <span><i class="fas fa-star"></i> 4.9/5</span>
+                        </div>
+                        <a href="#" class="script-btn">View Details</a>
+                    </div>
+                </div>
+            </div>
+            <div class="view-all">
+                <a href="#" class="view-all-btn">View All Scripts <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </section>
+
+        <section id="tools" class="tools">
+            <h2 class="section-title">Development Tools</h2>
+            <div class="tools-container">
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <i class="fas fa-map"></i>
+                    </div>
+                    <h3>Terrain Generator</h3>
+                    <p>Generate complex landscapes with our procedural terrain tool</p>
+                    <a href="#" class="tool-btn">Download</a>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3>Material Designer</h3>
+                    <p>Create custom materials and textures for your game environments</p>
+                    <a href="#" class="tool-btn">Download</a>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>NPC AI Builder</h3>
+                    <p>Design complex AI behaviors without advanced coding knowledge</p>
+                    <a href="#" class="tool-btn">Download</a>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <i class="fas fa-bug"></i>
+                    </div>
+                    <h3>Script Debugger</h3>
+                    <p>Advanced debugging tools to identify and fix code issues fast</p>
+                    <a href="#" class="tool-btn">Download</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="tutorials" class="tutorials">
+            <h2 class="section-title">Latest Tutorials</h2>
+            <div class="tutorials-container">
+                <div class="tutorial-card">
+                    <div class="tutorial-image">
+                        <img src="https://same-assets.com/9c25fd96-7c75-46d3-9f16-c0dc80d1b542" alt="Lua Scripting">
+                        <div class="tutorial-difficulty beginner">Beginner</div>
+                    </div>
+                    <div class="tutorial-content">
+                        <h3>Lua Scripting Fundamentals</h3>
+                        <p>Learn the basics of Lua programming for Roblox development</p>
+                        <a href="#" class="tutorial-link">Read Tutorial <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="tutorial-card">
+                    <div class="tutorial-image">
+                        <img src="https://same-assets.com/d2a1f05e-def1-4f8a-83e0-d95118a59b2c" alt="Game Mechanics">
+                        <div class="tutorial-difficulty intermediate">Intermediate</div>
+                    </div>
+                    <div class="tutorial-content">
+                        <h3>Building Game Mechanics</h3>
+                        <p>Create engaging gameplay systems that keep players coming back</p>
+                        <a href="#" class="tutorial-link">Read Tutorial <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="tutorial-card">
+                    <div class="tutorial-image">
+                        <img src="https://same-assets.com/5bf3c13c-cd5e-49eb-bf47-46e6ddc08658" alt="Performance Optimization">
+                        <div class="tutorial-difficulty advanced">Advanced</div>
+                    </div>
+                    <div class="tutorial-content">
+                        <h3>Performance Optimization</h3>
+                        <p>Learn techniques to make your games run smoothly with large player counts</p>
+                        <a href="#" class="tutorial-link">Read Tutorial <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="community" class="community">
+            <h2 class="section-title">Join Our Community</h2>
+            <div class="community-content">
+                <div class="community-text">
+                    <p>Connect with over 50,000 Roblox developers in our active community. Share your projects, get feedback, find collaborators, and stay updated with the latest development trends.</p>
+                    <div class="community-stats">
+                        <div class="stat">
+                            <h3>50K+</h3>
+                            <p>Members</p>
+                        </div>
+                        <div class="stat">
+                            <h3>1000+</h3>
+                            <p>Daily Active Users</p>
+                        </div>
+                        <div class="stat">
+                            <h3>200+</h3>
+                            <p>Expert Mentors</p>
+                        </div>
+                    </div>
+                    <div class="community-cta">
+                        <a href="#" class="discord-btn">
+                            <i class="fab fa-discord"></i> Join Our Discord
+                        </a>
+                        <a href="#" class="forum-btn">
+                            <i class="fas fa-comments"></i> Visit Forums
+                        </a>
+                    </div>
+                </div>
+                <div class="community-image">
+                    <img src="https://same-assets.com/a7c6fe1e-6e5f-4af4-be47-32e1c16fa51f" alt="RoDevTools Community">
+                </div>
+            </div>
+        </section>
+
+        <section class="newsletter">
+            <div class="newsletter-content">
+                <h2>Stay Updated</h2>
+                <p>Subscribe to our newsletter to receive the latest updates, tools, and resources</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>RoDevTools</h3>
+                <p>Empowering Roblox developers with professional tools and resources since 2023.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#scripts">Scripts</a></li>
+                    <li><a href="#tools">Tools</a></li>
+                    <li><a href="#tutorials">Tutorials</a></li>
+                    <li><a href="#">Documentation</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Community</h3>
+                <ul>
+                    <li><a href="#">Discord Server</a></li>
+                    <li><a href="#">Forums</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Events</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Bug Reports</a></li>
+                    <li><a href="#">Feature Requests</a></li>
+                </ul>
             </div>
         </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 RoDevTools. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Policy</a>
+            </div>
+        </div>
+    </footer>
 
-        <footer>
-            <p>IP Scanner Pro | For educational purposes only</p>
-            <p class="disclaimer">This tool is intended for network administrators and security professionals. Use responsibly.</p>
-        </footer>
-    </div>
+    <script>
+        // Mobile navigation toggle
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('nav-active');
+            document.querySelector('.hamburger').classList.toggle('toggle');
+        });
 
-    <script src="script.js"></script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>
