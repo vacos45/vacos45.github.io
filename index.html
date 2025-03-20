@@ -1,26 +1,504 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Roblox Scripts Login</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Script Key System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e1e;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #ff3e3e;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #ccc;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #444;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+        input:focus, textarea:focus {
+            border-color: #ff3e3e;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff3e3e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #e62222;
+        }
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+        .status {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .success {
+            background-color: rgba(39, 174, 96, 0.2);
+            color: #2ecc71;
+            border: 1px solid #27ae60;
+        }
+        .error {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #c0392b;
+        }
+        .warning {
+            background-color: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+            border: 1px solid #f39c12;
+        }
+        .script-box {
+            margin-top: 20px;
+            background-color: #333;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .script-box pre {
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .copy-btn {
+            background-color: #2980b9;
+            margin-top: 10px;
+            padding: 12px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .copy-btn:hover {
+            background-color: #3498db;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff3e3e;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 15px auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .password-strength {
+            margin-top: 5px;
+            height: 5px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .password-feedback {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .syntax-warning {
+            color: #f39c12;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <div class="login-container">
-    <h2>Login to Roblox Scripts</h2>
-    <form>
-      <div class="input-group">
-        <input type="text" required placeholder=" " />
-        <label>Username</label>
-      </div>
-      <div class="input-group">
-        <input type="password" required placeholder=" " />
-        <label>Password</label>
-      </div>
-      <button type="submit">Login</button>
-    </form>
-    <a href="#" class="link">Forgot password?</a>
-  </div>
+
+    <!-- Script Verification Section -->
+    <div class="container">
+        <h1>Script Key System</h1>
+        <div class="form-group">
+            <label for="key">Enter Script Key</label>
+            <input type="text" id="key" placeholder="Enter your key">
+            <div id="attempts-left" class="attempts-left">Attempts remaining: 5</div>
+        </div>
+        <button id="verify-btn">Verify Key</button>
+        <div id="loader" class="loader"></div>
+        <div id="status" class="status"></div>
+        <div id="script-box" class="script-box">
+            <h3>Your Script</h3>
+            <select id="version-select" class="version-select">
+                <option value="">Select Version</option>
+            </select>
+            <div class="version-info" id="version-info"></div>
+            <pre id="script-content">Script will appear here...</pre>
+            <button id="copy-btn" class="copy-btn">Copy Script</button>
+        </div>
+    </div>
+
+    <!-- Script Submission Section -->
+    <div class="container">
+        <h1>Submit a Script</h1>
+        <div class="form-group">
+            <label for="script-key">Set a Key</label>
+            <input type="text" id="script-key" placeholder="Set a key for your script">
+            <div class="password-strength" id="password-strength"></div>
+            <div class="password-feedback" id="password-feedback"></div>
+        </div>
+        <div class="form-group">
+            <label for="script-text">Script Content</label>
+            <textarea id="script-text" rows="6" placeholder="Paste your script here..."></textarea>
+            <div class="syntax-warning" id="syntax-warning">Script syntax warning: Missing closing parentheses or brackets</div>
+        </div>
+        <button id="submit-script" disabled>Submit Script</button>
+        <div id="submission-status" class="status"></div>
+    </div>
+
+    <script>
+        // Encryption functions
+        function encryptData(data, key) {
+            const encryptedData = [];
+            for (let i = 0; i < data.length; i++) {
+                encryptedData.push(String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length)));
+            }
+            return btoa(encryptedData.join(''));
+        }
+
+        function decryptData(encryptedData, key) {
+            try {
+                const decodedData = atob(encryptedData);
+                const decryptedData = [];
+                for (let i = 0; i < decodedData.length; i++) {
+                    decryptedData.push(String.fromCharCode(decodedData.charCodeAt(i) ^ key.charCodeAt(i % key.length)));
+                }
+                return decryptedData.join('');
+            } catch (e) {
+                console.error("Decryption failed:", e);
+                return null;
+            }
+        }
+
+        // Load stored scripts from localStorage with improved structure
+        let scriptStorage = JSON.parse(localStorage.getItem('scriptStorage')) || {};
+        let attemptCounts = JSON.parse(localStorage.getItem('attemptCounts')) || {};
+        let lastAttemptTime = JSON.parse(localStorage.getItem('lastAttemptTime')) || {};
+
+        // Rate limiting setup
+        const MAX_ATTEMPTS = 5;
+        const LOCKOUT_TIME = 60 * 60 * 1000;
+
+        function isLockedOut(key) {
+            const now = Date.now();
+            if (lastAttemptTime[key] && attemptCounts[key] >= MAX_ATTEMPTS) {
+                const lockoutExpiration = lastAttemptTime[key] + LOCKOUT_TIME;
+                if (now < lockoutExpiration) {
+                    const remainingTime = Math.ceil((lockoutExpiration - now) / (60 * 1000));
+                    return `Too many attempts. Please try again in ${remainingTime} minute(s).`;
+                } else {
+                    attemptCounts[key] = 0;
+                    localStorage.setItem('attemptCounts', JSON.stringify(attemptCounts));
+                }
+            }
+            return false;
+        }
+
+        function updateAttemptCount(key, success) {
+            if (!attemptCounts[key]) {
+                attemptCounts[key] = 0;
+            }
+            if (!success) {
+                attemptCounts[key]++;
+                lastAttemptTime[key] = Date.now();
+            } else {
+                attemptCounts[key] = 0;
+            }
+            localStorage.setItem('attemptCounts', JSON.stringify(attemptCounts));
+            localStorage.setItem('lastAttemptTime', JSON.stringify(lastAttemptTime));
+
+            const attemptsLeft = Math.max(0, MAX_ATTEMPTS - attemptCounts[key]);
+            document.getElementById('attempts-left').textContent = `Attempts remaining: ${attemptsLeft}`;
+        }
+
+        function validateScript(script) {
+            const brackets = [];
+            const pairs = {
+                '(': ')',
+                '{': '}',
+                '[': ']'
+            };
+
+            for (let i = 0; i < script.length; i++) {
+                const char = script[i];
+                if ('({['.includes(char)) {
+                    brackets.push(char);
+                } else if (')}]'.includes(char)) {
+                    const lastBracket = brackets.pop();
+                    if (pairs[lastBracket] !== char) {
+                        return `Unbalanced brackets at position ${i}: expected ${pairs[lastBracket] || 'opening bracket'}, found ${char}`;
+                    }
+                }
+            }
+
+            if (brackets.length > 0) {
+                return `Unbalanced brackets: missing ${brackets.map(b => pairs[b]).join(', ')}`;
+            }
+
+            if (script.includes('function') && !script.includes('end')) {
+                return 'Missing "end" keyword for function declaration';
+            }
+
+            if ((script.includes('if') || script.includes('for') || script.includes('while')) && !script.includes('then') && !script.includes('do')) {
+                return 'Missing "then" or "do" keyword in control structure';
+            }
+
+            return null;
+        }
+
+        function checkPasswordStrength(password) {
+            const strengthBar = document.getElementById('password-strength');
+            const feedback = document.getElementById('password-feedback');
+
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumbers = /[0-9]/.test(password);
+            const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            const isLongEnough = password.length >= 8;
+
+            let score = 0;
+            if (hasUpperCase) score += 20;
+            if (hasLowerCase) score += 20;
+            if (hasNumbers) score += 20;
+            if (hasSpecialChars) score += 20;
+            if (isLongEnough) score += 20;
+
+            strengthBar.style.width = `${score}%`;
+
+            if (score < 40) {
+                strengthBar.style.backgroundColor = '#e74c3c';
+                feedback.style.color = '#e74c3c';
+                feedback.textContent = 'Weak: Please use a stronger key';
+            } else if (score < 70) {
+                strengthBar.style.backgroundColor = '#f39c12';
+                feedback.style.color = '#f39c12';
+                feedback.textContent = 'Medium: Add numbers or special characters';
+            } else {
+                strengthBar.style.backgroundColor = '#2ecc71';
+                feedback.style.color = '#2ecc71';
+                feedback.textContent = 'Strong: Good key';
+            }
+
+            return score >= 60;
+        }
+
+        document.getElementById('script-key').addEventListener('input', function() {
+            const key = this.value.trim();
+            const isStrong = checkPasswordStrength(key);
+            document.getElementById('submit-script').disabled = !isStrong || !document.getElementById('script-text').value.trim();
+        });
+
+        document.getElementById('script-text').addEventListener('input', function() {
+            const scriptText = this.value.trim();
+            const key = document.getElementById('script-key').value.trim();
+            const syntaxWarning = document.getElementById('syntax-warning');
+
+            const validationError = validateScript(scriptText);
+            if (validationError) {
+                syntaxWarning.textContent = `Script syntax warning: ${validationError}`;
+                syntaxWarning.style.display = 'block';
+            } else {
+                syntaxWarning.style.display = 'none';
+            }
+
+            const isKeyStrong = checkPasswordStrength(key);
+            document.getElementById('submit-script').disabled = !isKeyStrong || !scriptText;
+        });
+
+        document.getElementById('submit-script').addEventListener('click', function() {
+            const scriptKey = document.getElementById('script-key').value.trim();
+            const scriptText = document.getElementById('script-text').value.trim();
+            const submissionStatus = document.getElementById('submission-status');
+
+            if (!scriptKey || !scriptText) {
+                showStatus(submissionStatus, 'Please enter a key and script.', 'error');
+                return;
+            }
+
+            const validationError = validateScript(scriptText);
+            if (validationError) {
+                showStatus(submissionStatus, `Script validation error: ${validationError}`, 'warning');
+                return;
+            }
+
+            if (!scriptStorage[scriptKey]) {
+                scriptStorage[scriptKey] = {
+                    versions: [],
+                    currentVersion: 0
+                };
+            }
+
+            const newVersion = {
+                timestamp: Date.now(),
+                note: `Version ${Date.now()}`,
+                content: encryptData(scriptText, scriptKey)
+            };
+
+            scriptStorage[scriptKey].versions.push(newVersion);
+            scriptStorage[scriptKey].currentVersion = scriptStorage[scriptKey].versions.length - 1;
+
+            localStorage.setItem('scriptStorage', JSON.stringify(scriptStorage));
+
+            showStatus(submissionStatus, 'Script submitted successfully!', 'success');
+
+            document.getElementById('script-text').value = '';
+            document.getElementById('password-strength').style.width = '0%';
+            document.getElementById('password-feedback').textContent = '';
+            document.getElementById('submit-script').disabled = true;
+        });
+
+        document.getElementById('verify-btn').addEventListener('click', function() {
+            const key = document.getElementById('key').value.trim();
+            const statusDiv = document.getElementById('status');
+            const scriptBox = document.getElementById('script-box');
+            const scriptContent = document.getElementById('script-content');
+            const versionSelect = document.getElementById('version-select');
+            const versionInfo = document.getElementById('version-info');
+            const loader = document.getElementById('loader');
+
+            statusDiv.className = 'status';
+            statusDiv.style.display = 'none';
+
+            if (!key) {
+                showStatus(statusDiv, 'Please enter a key.', 'error');
+                return;
+            }
+
+            const lockoutMessage = isLockedOut(key);
+            if (lockoutMessage) {
+                showStatus(statusDiv, lockoutMessage, 'error');
+                return;
+            }
+
+            loader.style.display = 'block';
+
+            setTimeout(() => {
+                loader.style.display = 'none';
+
+                if (scriptStorage[key]) {
+                    updateAttemptCount(key, true);
+                    showStatus(statusDiv, 'Key verified! Script unlocked.', 'success');
+
+                    scriptBox.style.display = 'block';
+
+                    versionSelect.innerHTML = '<option value="">Select Version</option>';
+
+                    const versions = scriptStorage[key].versions;
+                    versions.forEach((version, index) => {
+                        const date = new Date(version.timestamp);
+                        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = `Version ${index + 1} (${dateStr})`;
+                        versionSelect.appendChild(option);
+                    });
+
+                    const currentVersion = scriptStorage[key].currentVersion;
+                    versionSelect.value = currentVersion;
+
+                    const versionData = versions[currentVersion];
+                    versionInfo.textContent = `Note: ${versionData.note}`;
+
+                    const decryptedScript = decryptData(versionData.content, key);
+                    scriptContent.textContent = decryptedScript || 'Error decrypting script.';
+                } else {
+                    updateAttemptCount(key, false);
+                    showStatus(statusDiv, 'Invalid key. Please try again.', 'error');
+                    scriptBox.style.display = 'none';
+                }
+            }, 1000);
+        });
+
+        document.getElementById('version-select').addEventListener('change', function() {
+            const key = document.getElementById('key').value.trim();
+            const scriptContent = document.getElementById('script-content');
+            const versionInfo = document.getElementById('version-info');
+            const selectedVersion = this.value;
+
+            if (selectedVersion === '') return;
+
+            const versionData = scriptStorage[key].versions[selectedVersion];
+            versionInfo.textContent = `Note: ${versionData.note}`;
+
+            const decryptedScript = decryptData(versionData.content, key);
+            scriptContent.textContent = decryptedScript || 'Error decrypting script.';
+
+            scriptStorage[key].currentVersion = parseInt(selectedVersion);
+            localStorage.setItem('scriptStorage', JSON.stringify(scriptStorage));
+        });
+
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            const scriptContent = document.getElementById('script-content').textContent;
+            navigator.clipboard.writeText(scriptContent).then(() => {
+                this.textContent = 'Copied!';
+                setTimeout(() => {
+                    this.textContent = 'Copy Script';
+                }, 2000);
+            });
+        });
+
+        function showStatus(element, message, type) {
+            element.textContent = message;
+            element.className = 'status ' + type;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.opacity = '1';
+            }, 10);
+        }
+    </script>
 </body>
 </html>
