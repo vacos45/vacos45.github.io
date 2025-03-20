@@ -3,210 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Kali Linux Penetration Testing Tools Guide</title>
-    <meta name="description" content="Interactive guide for Kali Linux penetration testing tools with command syntax, ethical usage, and detailed explanations">
-    <link rel="stylesheet" href="style.css">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="description" content="Advanced interactive guide for Kali Linux penetration testing tools">
+    <title>Kali Linux Tools Guide | Advanced Penetration Testing</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="https://www.kali.org/images/favicon.png">
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav id="main-nav">
-        <div class="container">
-            <div class="nav-brand">
-                <img src="https://same-assets.com/i/0977a97e-4c04-4f2e-98de-0e77ab5f8f60/kali-logo.svg" alt="Kali Linux Logo" class="logo">
-                <h1>Kali Linux Tools Guide</h1>
-            </div>
-            <div class="nav-links">
-                <ul>
-                    <li><a href="#wireless-tools" class="nav-link">Wireless Tools</a></li>
-                    <li><a href="#web-apps" class="nav-link">Web Apps</a></li>
-                    <li><a href="#forensics" class="nav-link">Forensics</a></li>
-                    <li><a href="#terminal" class="nav-link">Terminal</a></li>
-                </ul>
-            </div>
-            <div class="difficulty-selector">
-                <span>Difficulty: </span>
-                <button id="basic-mode" class="difficulty-btn active">Basic</button>
-                <button id="advanced-mode" class="difficulty-btn">Advanced</button>
-                <button id="expert-mode" class="difficulty-btn">Expert</button>
-            </div>
-            <button id="menu-toggle" class="menu-toggle">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Ethics Banner (persistent) -->
-    <div id="ethics-banner" class="ethics-banner">
-        <div class="container">
-            <p><i class="fas fa-shield-alt"></i> <strong>Ethical Notice:</strong> These tools should only be used on systems you own or have explicit permission to test. Unauthorized usage is illegal.</p>
-            <button id="ethics-dismiss" class="dismiss-btn"><i class="fas fa-times"></i></button>
-        </div>
+    <div class="ethical-banner">
+        <p><strong>⚠️ ETHICAL USE ONLY:</strong> These tools are meant for authorized security testing. Unauthorized use is illegal.</p>
+        <button id="acknowledge-btn">I Understand</button>
     </div>
 
-    <!-- Hero Section -->
-    <header id="hero">
-        <div class="container">
-            <div class="terminal-header">
-                <div class="terminal-title-bar">
-                    <div class="terminal-buttons">
-                        <span class="terminal-btn close"></span>
-                        <span class="terminal-btn minimize"></span>
-                        <span class="terminal-btn maximize"></span>
-                    </div>
-                    <div class="terminal-title">kali@kali:~</div>
-                </div>
-                <div class="terminal-content">
-                    <div class="typing-text">
-                        <span class="prompt">kali@kali:~$ </span>
-                        <span id="dynamic-text" class="command-text"></span>
-                        <span class="cursor">|</span>
-                    </div>
-                </div>
+    <header>
+        <nav id="main-nav">
+            <div class="logo">
+                <img src="https://www.kali.org/images/kali-logo.svg" alt="Kali Linux Logo">
+                <h1>Kali Tools Guide</h1>
             </div>
-            <div class="hero-content">
-                <h2>Master the Art of Ethical Penetration Testing</h2>
-                <p>An interactive guide to the most powerful tools in Kali Linux's arsenal</p>
-                <div class="search-container">
-                    <input type="text" id="tool-search" placeholder="Search for a tool...">
-                    <button id="search-btn"><i class="fas fa-search"></i></button>
+            <div class="nav-links">
+                <a href="#wireless">Wireless Tools</a>
+                <a href="#webapp">Web Applications</a>
+                <a href="#forensics">Forensics</a>
+                <a href="#terminal">Terminal</a>
+            </div>
+            <div class="difficulty-toggle">
+                <span>Difficulty: </span>
+                <button class="active" data-level="basic">Basic</button>
+                <button data-level="advanced">Advanced</button>
+                <button data-level="expert">Expert</button>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="terminal-header">
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <span class="terminal-button"></span>
+                    <span class="terminal-button"></span>
+                    <span class="terminal-button"></span>
+                    <span class="terminal-title">kali@linux:~#</span>
+                </div>
+                <div class="terminal-content" id="animated-text">
+                    <div class="line"><span class="prompt">root@kali:~# </span><span class="command">Welcome to the Advanced Kali Linux Tools Guide</span></div>
                 </div>
             </div>
         </div>
-    </header>
+        <div class="hero-content">
+            <h2>Master Kali Linux Penetration Testing Tools</h2>
+            <p>Professional interactive guide with real-world command examples, cheat sheets, and best practices</p>
+            <div class="search-container">
+                <input type="text" id="tool-search" placeholder="Search for a tool...">
+                <button id="search-btn">Search</button>
+            </div>
+        </div>
+    </section>
 
-    <!-- Tools Section -->
     <main>
-        <!-- Filter and Info Bar -->
-        <section id="filter-bar">
-            <div class="container">
-                <div class="filter-controls">
-                    <button class="filter-btn active" data-filter="all">All Tools</button>
-                    <button class="filter-btn" data-filter="wireless-tools">Wireless</button>
-                    <button class="filter-btn" data-filter="web-apps">Web Apps</button>
-                    <button class="filter-btn" data-filter="forensics">Forensics</button>
-                    <button class="filter-btn" data-filter="exploitation">Exploitation</button>
-                    <button class="filter-btn" data-filter="reconnaissance">Reconnaissance</button>
+        <section id="tools-overview">
+            <h2>Tool Categories</h2>
+            <div class="filter-pills">
+                <button class="pill active" data-filter="all">All Tools</button>
+                <button class="pill" data-filter="wireless">Wireless</button>
+                <button class="pill" data-filter="webapp">Web Apps</button>
+                <button class="pill" data-filter="forensics">Forensics</button>
+                <button class="pill" data-filter="exploitation">Exploitation</button>
+                <button class="pill" data-filter="recon">Reconnaissance</button>
+            </div>
+
+            <div class="tools-grid" id="tools-container">
+                <!-- Tool cards will be populated via JavaScript -->
+            </div>
+        </section>
+
+        <section id="terminal" class="terminal-simulator">
+            <h2>Terminal Simulator</h2>
+            <div class="terminal-window simulator">
+                <div class="terminal-header">
+                    <span class="terminal-button"></span>
+                    <span class="terminal-button"></span>
+                    <span class="terminal-button"></span>
+                    <span class="terminal-title">Terminal Simulator</span>
                 </div>
-                <div class="view-toggle">
-                    <button id="grid-view" class="view-btn active"><i class="fas fa-th"></i></button>
-                    <button id="list-view" class="view-btn"><i class="fas fa-list"></i></button>
+                <div class="terminal-content">
+                    <div class="line"><span class="prompt">root@kali:~# </span><span id="terminal-input" class="command"></span><span class="cursor">_</span></div>
+                    <div id="terminal-output"></div>
+                </div>
+                <div class="terminal-examples">
+                    <p>Try these commands:</p>
+                    <button class="example-cmd" data-cmd="nmap -sS -sV -p 1-1000 192.168.1.1">Nmap Port Scan</button>
+                    <button class="example-cmd" data-cmd="aircrack-ng -w wordlist.txt capture.cap">Aircrack-ng</button>
+                    <button class="example-cmd" data-cmd="sqlmap -u http://target.com/page.php?id=1 --dbs">SQLMap Scan</button>
                 </div>
             </div>
         </section>
 
-        <!-- Tool Cards Section -->
-        <section id="tools-container">
-            <div class="container">
-                <div class="tools-grid" id="tools-grid">
-                    <!-- Cards will be dynamically populated here -->
-                </div>
-            </div>
-        </section>
-
-        <!-- Terminal Simulator Section -->
-        <section id="terminal">
-            <div class="container">
-                <h2><i class="fas fa-terminal"></i> Interactive Terminal Simulator</h2>
-                <div class="terminal-simulator">
-                    <div class="terminal-window">
-                        <div class="terminal-title-bar">
-                            <div class="terminal-buttons">
-                                <span class="terminal-btn close"></span>
-                                <span class="terminal-btn minimize"></span>
-                                <span class="terminal-btn maximize"></span>
-                            </div>
-                            <div class="terminal-title">kali@kali:~</div>
-                        </div>
-                        <div class="terminal-content">
-                            <div id="terminal-output">
-                                <p><span class="output-text">Welcome to Kali Linux Terminal Simulator</span></p>
-                                <p><span class="output-text">Type a command or select from examples below</span></p>
-                            </div>
-                            <div class="terminal-input-line">
-                                <span class="prompt">kali@kali:~$ </span>
-                                <input type="text" id="terminal-input" placeholder="Enter command...">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="terminal-examples">
-                        <h3>Example Commands:</h3>
-                        <div class="example-commands">
-                            <!-- Example buttons will be added dynamically -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Bookmarked Commands Section -->
-        <section id="bookmarks">
-            <div class="container">
-                <h2><i class="fas fa-bookmark"></i> Bookmarked Commands</h2>
-                <div class="bookmarks-container" id="bookmarks-container">
-                    <p class="no-bookmarks">No bookmarks yet. Click the bookmark icon on any command to save it here.</p>
-                </div>
+        <section id="bookmarks" class="bookmarks">
+            <h2>Bookmarked Commands</h2>
+            <div class="bookmarks-container" id="bookmarks-list">
+                <p class="empty-bookmarks">No bookmarks yet. Click the bookmark icon on any command to save it for later.</p>
             </div>
         </section>
     </main>
 
-    <!-- Footer -->
     <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>About This Guide</h3>
-                    <p>This guide is intended for educational purposes only. Always practice ethical hacking and obtain proper authorization before testing any systems.</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Ethical Guidelines</h3>
-                    <ul>
-                        <li>Never use these tools on systems without permission</li>
-                        <li>Document all testing activities thoroughly</li>
-                        <li>Report vulnerabilities responsibly</li>
-                        <li>Keep client data confidential</li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Resources</h3>
-                    <ul>
-                        <li><a href="https://www.kali.org/docs/" target="_blank">Official Kali Documentation</a></li>
-                        <li><a href="https://www.offensive-security.com/" target="_blank">Offensive Security</a></li>
-                        <li><a href="https://owasp.org/" target="_blank">OWASP</a></li>
-                    </ul>
-                </div>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About This Guide</h3>
+                <p>This interactive guide is designed for educational purposes to help security professionals learn Kali Linux tools ethically.</p>
             </div>
-            <div class="copyright">
-                <p>&copy; 2025 Kali Linux Tools Guide | Educational Use Only</p>
+            <div class="footer-section">
+                <h3>Ethical Reminder</h3>
+                <p>Always obtain proper authorization before performing security testing. Unauthorized testing is illegal and unethical.</p>
             </div>
+            <div class="footer-section">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="https://www.kali.org/docs/" target="_blank">Official Kali Documentation</a></li>
+                    <li><a href="https://www.offensive-security.com/" target="_blank">Offensive Security</a></li>
+                    <li><a href="https://www.sans.org/" target="_blank">SANS Institute</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 Kali Linux Tools Guide | For Educational Purposes Only</p>
         </div>
     </footer>
 
-    <!-- Ethics Confirmation Modal -->
-    <div id="ethics-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-exclamation-triangle"></i> Ethical Use Agreement</h2>
-                <span class="close-modal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p>The tools and techniques described in this guide are powerful and can cause serious damage if misused.</p>
-                <p><strong>By continuing to use this guide, you agree to:</strong></p>
-                <ul>
-                    <li>Only use these tools on systems you own or have explicit permission to test</li>
-                    <li>Follow all applicable laws and regulations in your jurisdiction</li>
-                    <li>Practice responsible disclosure of any vulnerabilities discovered</li>
-                    <li>Use this knowledge to improve security, not to exploit others</li>
-                </ul>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="ethics-checkbox">
-                    <label for="ethics-checkbox">I understand and agree to use these tools ethically and responsibly</label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="ethics-agree" class="agree-btn" disabled>I Agree</button>
-            </div>
+    <div class="safety-reminder" id="safety-reminder">
+        <div class="safety-content">
+            <h3>⚠️ Security Reminder</h3>
+            <p>Remember to operate within legal and ethical boundaries. Always have proper authorization.</p>
+            <button id="dismiss-reminder">Dismiss for Now</button>
         </div>
     </div>
 
