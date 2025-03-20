@@ -3,139 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Advanced interactive guide for Kali Linux penetration testing tools">
-    <title>Kali Linux Tools Guide | Advanced Penetration Testing</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/png" href="https://www.kali.org/images/favicon.png">
+    <title>Vacos Roblox - Discord Community</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
-    <div class="ethical-banner">
-        <p><strong>⚠️ ETHICAL USE ONLY:</strong> These tools are meant for authorized security testing. Unauthorized use is illegal.</p>
-        <button id="acknowledge-btn">I Understand</button>
-    </div>
-
-    <header>
-        <nav id="main-nav">
+    <div class="container">
+        <header>
             <div class="logo">
-                <img src="https://www.kali.org/images/kali-logo.svg" alt="Kali Linux Logo">
-                <h1>Kali Tools Guide</h1>
+                <i class="fab fa-discord"></i>
+                <h1>Vacos Roblox</h1>
             </div>
-            <div class="nav-links">
-                <a href="#wireless">Wireless Tools</a>
-                <a href="#webapp">Web Applications</a>
-                <a href="#forensics">Forensics</a>
-                <a href="#terminal">Terminal</a>
-            </div>
-            <div class="difficulty-toggle">
-                <span>Difficulty: </span>
-                <button class="active" data-level="basic">Basic</button>
-                <button data-level="advanced">Advanced</button>
-                <button data-level="expert">Expert</button>
-            </div>
-        </nav>
-    </header>
+            <p class="tagline">Scripts & Leaks for Roblox Games</p>
+        </header>
 
-    <section class="hero">
-        <div class="terminal-header">
-            <div class="terminal-window">
-                <div class="terminal-header">
-                    <span class="terminal-button"></span>
-                    <span class="terminal-button"></span>
-                    <span class="terminal-button"></span>
-                    <span class="terminal-title">kali@linux:~#</span>
+        <main>
+            <div class="discord-card">
+                <div class="card-header">
+                    <i class="fab fa-discord"></i>
+                    <h2>Join Our Discord Community</h2>
                 </div>
-                <div class="terminal-content" id="animated-text">
-                    <div class="line"><span class="prompt">root@kali:~# </span><span class="command">Welcome to the Advanced Kali Linux Tools Guide</span></div>
+                <p>Get access to exclusive scripts, game leaks, and connect with fellow players!</p>
+                <div class="discord-link">
+                    <a href="https://discord.gg/rNg3ycbAQb" target="_blank" id="discord-button">
+                        <i class="fab fa-discord"></i> Join Discord Server
+                    </a>
                 </div>
-            </div>
-        </div>
-        <div class="hero-content">
-            <h2>Master Kali Linux Penetration Testing Tools</h2>
-            <p>Professional interactive guide with real-world command examples, cheat sheets, and best practices</p>
-            <div class="search-container">
-                <input type="text" id="tool-search" placeholder="Search for a tool...">
-                <button id="search-btn">Search</button>
-            </div>
-        </div>
-    </section>
-
-    <main>
-        <section id="tools-overview">
-            <h2>Tool Categories</h2>
-            <div class="filter-pills">
-                <button class="pill active" data-filter="all">All Tools</button>
-                <button class="pill" data-filter="wireless">Wireless</button>
-                <button class="pill" data-filter="webapp">Web Apps</button>
-                <button class="pill" data-filter="forensics">Forensics</button>
-                <button class="pill" data-filter="exploitation">Exploitation</button>
-                <button class="pill" data-filter="recon">Reconnaissance</button>
-            </div>
-
-            <div class="tools-grid" id="tools-container">
-                <!-- Tool cards will be populated via JavaScript -->
-            </div>
-        </section>
-
-        <section id="terminal" class="terminal-simulator">
-            <h2>Terminal Simulator</h2>
-            <div class="terminal-window simulator">
-                <div class="terminal-header">
-                    <span class="terminal-button"></span>
-                    <span class="terminal-button"></span>
-                    <span class="terminal-button"></span>
-                    <span class="terminal-title">Terminal Simulator</span>
-                </div>
-                <div class="terminal-content">
-                    <div class="line"><span class="prompt">root@kali:~# </span><span id="terminal-input" class="command"></span><span class="cursor">_</span></div>
-                    <div id="terminal-output"></div>
-                </div>
-                <div class="terminal-examples">
-                    <p>Try these commands:</p>
-                    <button class="example-cmd" data-cmd="nmap -sS -sV -p 1-1000 192.168.1.1">Nmap Port Scan</button>
-                    <button class="example-cmd" data-cmd="aircrack-ng -w wordlist.txt capture.cap">Aircrack-ng</button>
-                    <button class="example-cmd" data-cmd="sqlmap -u http://target.com/page.php?id=1 --dbs">SQLMap Scan</button>
+                <div class="server-stats">
+                    <div class="stat">
+                        <i class="fas fa-users"></i>
+                        <span id="member-count">Loading...</span>
+                        <p>Members</p>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-code"></i>
+                        <span id="script-count">100+</span>
+                        <p>Scripts</p>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-gamepad"></i>
+                        <span id="game-count">50+</span>
+                        <p>Games Supported</p>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <section id="bookmarks" class="bookmarks">
-            <h2>Bookmarked Commands</h2>
-            <div class="bookmarks-container" id="bookmarks-list">
-                <p class="empty-bookmarks">No bookmarks yet. Click the bookmark icon on any command to save it for later.</p>
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-robot"></i>
+                    <h3>Roblox Scripts</h3>
+                    <p>Access powerful scripts for various Roblox games</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-unlock-alt"></i>
+                    <h3>Game Leaks</h3>
+                    <p>Get the latest leaks and updates before anyone else</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-users"></i>
+                    <h3>Community Support</h3>
+                    <p>24/7 support from our active community members</p>
+                </div>
             </div>
-        </section>
-    </main>
+        </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>About This Guide</h3>
-                <p>This interactive guide is designed for educational purposes to help security professionals learn Kali Linux tools ethically.</p>
-            </div>
-            <div class="footer-section">
-                <h3>Ethical Reminder</h3>
-                <p>Always obtain proper authorization before performing security testing. Unauthorized testing is illegal and unethical.</p>
-            </div>
-            <div class="footer-section">
-                <h3>Resources</h3>
-                <ul>
-                    <li><a href="https://www.kali.org/docs/" target="_blank">Official Kali Documentation</a></li>
-                    <li><a href="https://www.offensive-security.com/" target="_blank">Offensive Security</a></li>
-                    <li><a href="https://www.sans.org/" target="_blank">SANS Institute</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="copyright">
-            <p>&copy; 2025 Kali Linux Tools Guide | For Educational Purposes Only</p>
-        </div>
-    </footer>
-
-    <div class="safety-reminder" id="safety-reminder">
-        <div class="safety-content">
-            <h3>⚠️ Security Reminder</h3>
-            <p>Remember to operate within legal and ethical boundaries. Always have proper authorization.</p>
-            <button id="dismiss-reminder">Dismiss for Now</button>
-        </div>
+        <footer>
+            <p>&copy; 2025 Vacos Roblox Community | All rights reserved</p>
+            <p class="disclaimer">This website is not affiliated with Roblox Corporation</p>
+        </footer>
     </div>
 
     <script src="script.js"></script>
