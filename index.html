@@ -1,92 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProxyHub - Anonymous Web Browsing</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roblox Scripts Login</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1>ProxyHub</h1>
-      <nav>
-        <ul>
-          <li><a href="#" class="active">Home</a></li>
-          <li><a href="#">About</a></li>
-          <li><a href="#">FAQ</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-  <main>
-    <section class="hero">
-      <div class="container">
-        <h2>Browse the web anonymously</h2>
-        <p>Access blocked websites and protect your privacy with our secure web proxy</p>
-        <div class="proxy-form">
-          <form id="proxyForm">
-            <input type="url" id="urlInput" placeholder="Enter URL (e.g., https://example.com)" required>
-            <button type="submit">Browse</button>
-          </form>
-        </div>
+  <div class="login-container">
+    <h2>Login to Roblox Scripts</h2>
+    <form>
+      <div class="input-group">
+        <input type="text" required placeholder=" " />
+        <label>Username</label>
       </div>
-    </section>
-    <section class="features">
-      <div class="container">
-        <h2>Why Choose ProxyHub?</h2>
-        <div class="feature-grid">
-          <div class="feature">
-            <div class="feature-icon">🔒</div>
-            <h3>Enhanced Privacy</h3>
-            <p>Browse the web without revealing your IP address or location.</p>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">⚡</div>
-            <h3>Fast &amp; Reliable</h3>
-            <p>Our servers ensure quick loading times and stable connections.</p>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">🌍</div>
-            <h3>Access Anywhere</h3>
-            <p>Bypass geographic restrictions and access blocked content.</p>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">🛡️</div>
-            <h3>No Logs Policy</h3>
-            <p>We don't track or store your browsing activity.</p>
-          </div>
-        </div>
+      <div class="input-group">
+        <input type="password" required placeholder=" " />
+        <label>Password</label>
       </div>
-    </section>
-    <section class="proxy-viewer" id="proxyViewer">
-      <div class="container">
-        <div class="proxy-controls">
-          <div class="url-display">
-            <span>Browsing:</span>
-            <span id="proxyUrl" class="url"></span>
-          </div>
-          <div class="controls">
-            <button id="refreshBtn" title="Refresh"><span>↻</span></button>
-            <button id="closeBtn" title="Close"><span>✕</span></button>
-          </div>
-        </div>
-        <div class="proxy-frame-container">
-          <iframe id="proxyFrame" sandbox="allow-same-origin allow-scripts" title="Proxy Content"></iframe>
-        </div>
-      </div>
-    </section>
-  </main>
-  <footer>
-    <div class="container">
-      <p>&copy; 2025 ProxyHub. All rights reserved.</p>
-      <ul class="footer-links">
-        <li><a href="#">Privacy Policy</a></li>
-        <li><a href="#">Terms of Service</a></li>
-      </ul>
-    </div>
-  </footer>
-  <script src="script.js"></script>
+      <button type="submit">Login</button>
+    </form>
+    <a href="#" class="link">Forgot password?</a>
+  </div>
 </body>
 </html>
