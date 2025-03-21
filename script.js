@@ -52,89 +52,84 @@ document.addEventListener("DOMContentLoaded", function () {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
-  // Enhanced Terminal Simulation
-  const terminalInput = document.getElementById("terminal-input");
-  const terminalOutput = document.getElementById("terminal-output");
+  // Challenge Terminal Simulation for Kali Linux Commands
+  const challengeInput = document.getElementById("challenge-input");
+  const challengeOutput = document.getElementById("challenge-output");
   let commandHistory = [];
   let historyIndex = -1;
 
-  // Pre-defined command responses with extra flair
-  const commands = {
-    help: `Available commands:
-- help: Show this help message.
-- search: Simulate searching for exploits.
-- use: Simulate module selection.
-- show: Display module options.
-- set: Set module parameters.
-- exploit: Execute the simulated exploit.
-- clear: Clear the terminal.`,
-    search: `Searching for exploits...
-[✔] Found: exploit/windows/smb/ms17_010_eternalblue
-[✔] Found: exploit/linux/http/apache_mod_cgi_bash_env
+  // Pre-defined responses for a variety of Kali Linux commands
+  const kaliCommands = {
+    ls: `Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos`,
+    pwd: `/home/kali`,
+    ifconfig: `eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255
+        inet6 fe80::a00:27ff:fe4e:66a1  prefixlen 64  scopeid 0x20<link>
+        ether 08:00:27:4e:66:a1  txqueuelen 1000  (Ethernet)
+        RX packets 10500  bytes 8500000 (8.5 MB)
+        TX packets 9800  bytes 7200000 (7.2 MB)`,
+    whoami: `kali`,
+    netstat: `Active Internet connections (w/o servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 kali:ssh                192.168.1.55:52412      ESTABLISHED
 ...`,
-    use: `Module selected. Type "show" to view parameters.`,
-    show: `RHOSTS: <target IP>
-RPORT: <port>
-Other options: [default values]`,
-    set: `Option set successfully.`,
-    exploit: `Launching exploit...
-[+] Exploit in progress...
-[+] Exploit completed. Session opened.`,
+    uname: `Linux kali 5.10.0-kali9-amd64 #1 SMP Debian 5.10.46-4kali1 (2021-08-15) x86_64 GNU/Linux`,
+    cat: `Usage: cat [OPTION] [FILE]...`,
     clear: ``,
   };
 
-  terminalInput.addEventListener("keydown", function (e) {
+  challengeInput.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      const inputCommand = terminalInput.value.trim();
+      const inputCommand = challengeInput.value.trim();
       if (!inputCommand) return;
-      appendToTerminal(`msf> ${inputCommand}`);
-      // Save to history
+      appendChallengeOutput(`kali@machine:~$ ${inputCommand}`);
+      // Save command to history and reset index
       commandHistory.push(inputCommand);
       historyIndex = commandHistory.length;
-      processCommand(inputCommand);
-      terminalInput.value = "";
+      processKaliCommand(inputCommand);
+      challengeInput.value = "";
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       if (historyIndex > 0) {
         historyIndex--;
-        terminalInput.value = commandHistory[historyIndex];
+        challengeInput.value = commandHistory[historyIndex];
       }
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
       if (historyIndex < commandHistory.length - 1) {
         historyIndex++;
-        terminalInput.value = commandHistory[historyIndex];
+        challengeInput.value = commandHistory[historyIndex];
       } else {
         historyIndex = commandHistory.length;
-        terminalInput.value = "";
+        challengeInput.value = "";
       }
     }
   });
 
-  function processCommand(cmd) {
+  function processKaliCommand(cmd) {
     const commandKey = cmd.split(" ")[0].toLowerCase();
-    let response = commands[commandKey];
+    let response = kaliCommands[commandKey];
     if (response === undefined) {
-      response = `Command "${cmd}" not found. Type "help" for available commands.`;
+      response = `bash: ${cmd}: command not found`;
     }
     // If clear, wipe terminal output
     if (commandKey === "clear") {
-      terminalOutput.innerHTML = "";
+      challengeOutput.innerHTML = "";
       return;
     }
-    // Simulate delay for realism
+    // Simulate a realistic delay
     setTimeout(() => {
-      appendToTerminal(response);
+      appendChallengeOutput(response);
     }, 500);
   }
 
-  function appendToTerminal(text) {
+  function appendChallengeOutput(text) {
     const line = document.createElement("div");
     line.className = "terminal-line";
     line.textContent = text;
-    terminalOutput.appendChild(line);
-    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    challengeOutput.appendChild(line);
+    challengeOutput.scrollTop = challengeOutput.scrollHeight;
   }
 
   // Particle background for header (simple implementation)
