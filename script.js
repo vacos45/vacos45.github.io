@@ -1,330 +1,230 @@
-// Initialize variables for editor instances
-let htmlEditor, cssEditor, jsEditor, pythonEditor;
-let pyodideInstance;
-let consoleOutput = document.getElementById('console-output');
-let isLoading = false;
-
-// Function to log messages to the console
-function logToConsole(message, type = 'info') {
-    const span = document.createElement('span');
-    span.className = `log-${type}`;
-    span.textContent = message + '\n';
-    consoleOutput.appendChild(span);
-    consoleOutput.scrollTop = consoleOutput.scrollHeight;
-}
-
-// Initialize Ace Editor instances
-function initializeEditors() {
-    // Configure HTML Editor
-    htmlEditor = ace.edit("html-editor");
-    htmlEditor.setTheme("ace/theme/monokai");
-    htmlEditor.session.setMode("ace/mode/html");
-    htmlEditor.setValue(`<!DOCTYPE html>
-<html>
-<head>
-    <title>HTML Preview</title>
-</head>
-<body>
-    <h1>Hello, World!</h1>
-    <p>Edit the HTML, CSS, and JavaScript to see changes here.</p>
-</body>
-</html>`);
-
-    // Configure CSS Editor
-    cssEditor = ace.edit("css-editor");
-    cssEditor.setTheme("ace/theme/monokai");
-    cssEditor.session.setMode("ace/mode/css");
-    cssEditor.setValue(`body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background-color: #f0f0f0;
-}
-
-h1 {
-    color: navy;
-}
-
-p {
-    color: #333;
-}`);
-
-    // Configure JavaScript Editor
-    jsEditor = ace.edit("js-editor");
-    jsEditor.setTheme("ace/theme/monokai");
-    jsEditor.session.setMode("ace/mode/javascript");
-    jsEditor.setValue(`// This JavaScript will run in the preview
+// Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('JavaScript is running!');
+    // Get references to all editor elements
+    const htmlEditor = document.getElementById('htmlEditor');
+    const cssEditor = document.getElementById('cssEditor');
+    const jsEditor = document.getElementById('jsEditor');
+    const pythonEditor = document.getElementById('pythonEditor');
+    const outputFrame = document.getElementById('outputFrame');
+    const consoleOutput = document.getElementById('consoleOutput');
+    const runBtn = document.getElementById('runBtn');
+    const clearBtn = document.getElementById('clearBtn');
 
-    const heading = document.querySelector('h1');
-    if (heading) {
-        heading.addEventListener('click', function() {
-            this.style.color = this.style.color === 'red' ? 'navy' : 'red';
-            console.log('Heading color changed');
-        });
-    }
-});`);
+    // Load saved code from localStorage if available
+    loadFromLocalStorage();
 
-    // Configure Python Editor
-    pythonEditor = ace.edit("python-editor");
-    pythonEditor.setTheme("ace/theme/monokai");
-    pythonEditor.session.setMode("ace/mode/python");
-    pythonEditor.setValue(`# Python code example
-import sys
+    // Run button click handler
+    runBtn.addEventListener('click', runCode);
 
-def greet(name):
-    return f"Hello, {name}!"
+    // Clear button click handler
+    clearBtn.addEventListener('click', clearAll);
 
-# Print to console
-print(greet("World"))
-print("Python version:", sys.version)
-
-# Create a list and manipulate it
-numbers = [1, 2, 3, 4, 5]
-squared = [x**2 for x in numbers]
-print("Original:", numbers)
-print("Squared:", squared)`);
-}
-
-// Initialize Pyodide
-async function initializePyodide() {
-    try {
-        logToConsole("Loading Python environment...");
-        pyodideInstance = await loadPyodide();
-        logToConsole("Python environment loaded successfully!");
-    } catch (error) {
-        logToConsole(`Error loading Python: ${error.message}`, 'error');
-    }
-}
-
-// Run HTML/CSS/JS code
-function runWebCode() {
-    const htmlCode = htmlEditor.getValue();
-    const cssCode = cssEditor.getValue();
-    const jsCode = jsEditor.getValue();
-
-    const previewFrame = document.getElementById('preview-frame');
-    const preview = previewFrame.contentWindow.document;
-
-    // Clear previous console output
-    consoleOutput.innerHTML = '';
-
-    // Write the HTML, including the CSS and JS
-    preview.open();
-    preview.write(`
-        ${htmlCode}
-        <style>${cssCode}</style>
-        <script>
-            // Capture console.log output
-            (function() {
-                const originalLog = console.log;
-                const originalError = console.error;
-                const originalWarn = console.warn;
-                const originalInfo = console.info;
-
-                console.log = function(...args) {
-                    originalLog.apply(console, args);
-                    window.parent.postMessage({
-                        type: 'log',
-                        level: 'info',
-                        content: args.map(arg => String(arg)).join(' ')
-                    }, '*');
-                };
-
-                console.error = function(...args) {
-                    originalError.apply(console, args);
-                    window.parent.postMessage({
-                        type: 'log',
-                        level: 'error',
-                        content: args.map(arg => String(arg)).join(' ')
-                    }, '*');
-                };
-
-                console.warn = function(...args) {
-                    originalWarn.apply(console, args);
-                    window.parent.postMessage({
-                        type: 'log',
-                        level: 'warn',
-                        content: args.map(arg => String(arg)).join(' ')
-                    }, '*');
-                };
-
-                console.info = function(...args) {
-                    originalInfo.apply(console, args);
-                    window.parent.postMessage({
-                        type: 'log',
-                        level: 'info',
-                        content: args.map(arg => String(arg)).join(' ')
-                    }, '*');
-                };
-
-                window.onerror = function(message, source, lineno, colno, error) {
-                    window.parent.postMessage({
-                        type: 'log',
-                        level: 'error',
-                        content: 'Error: ' + message + ' at line ' + lineno + ':' + colno
-                    }, '*');
-                    return true;
-                };
-            })();
-        </script>
-        <script>${jsCode}</script>
-    `);
-    preview.close();
-
-    // Switch to preview tab
-    document.querySelector('[data-output="preview"]').click();
-}
-
-// Run Python code
-async function runPythonCode() {
-    if (!pyodideInstance) {
-        logToConsole("Python environment is not loaded yet. Please wait or reload the page.", 'error');
-        return;
-    }
-
-    if (isLoading) {
-        logToConsole("Please wait, another Python operation is in progress...", 'warn');
-        return;
-    }
-
-    isLoading = true;
-    const pythonCode = pythonEditor.getValue();
-
-    // Clear previous output
-    consoleOutput.innerHTML = '';
-    logToConsole("Running Python code...");
-
-    try {
-        // Redirect Python stdout to our console
-        pyodideInstance.runPython(`
-            import sys
-            from io import StringIO
-
-            class PythonOutput:
-                def __init__(self):
-                    self.buffer = StringIO()
-
-                def write(self, text):
-                    self.buffer.write(text)
-                    return len(text)
-
-                def flush(self):
-                    pass
-
-            python_output = PythonOutput()
-            sys.stdout = python_output
-            sys.stderr = python_output
-        `);
-
-        // Run the user's Python code
-        pyodideInstance.runPython(pythonCode);
-
-        // Get the output
-        const output = pyodideInstance.runPython("python_output.buffer.getvalue()");
-        if (output) {
-            logToConsole(output);
-        } else {
-            logToConsole("Code executed with no output.");
-        }
-    } catch (error) {
-        logToConsole(`Error: ${error.message}`, 'error');
-    } finally {
-        isLoading = false;
-    }
-
-    // Switch to console tab
-    document.querySelector('[data-output="console"]').click();
-}
-
-// Tab switching functionality
-function setupTabSwitching() {
-    // Editor tabs
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const editors = document.querySelectorAll('.editor');
-
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Remove active class from all buttons and editors
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            editors.forEach(editor => editor.classList.remove('active'));
-
-            // Add active class to clicked button and corresponding editor
-            button.classList.add('active');
-            const targetTab = button.getAttribute('data-tab');
-            document.getElementById(`${targetTab}-editor`).classList.add('active');
-
-            // Refresh the active editor
-            if (targetTab === 'html') htmlEditor.resize();
-            if (targetTab === 'css') cssEditor.resize();
-            if (targetTab === 'js') jsEditor.resize();
-            if (targetTab === 'python') pythonEditor.resize();
-        });
-    });
-
-    // Output tabs
-    const outputTabButtons = document.querySelectorAll('.output-tab-btn');
-    const outputs = document.querySelectorAll('.output');
-
-    outputTabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Remove active class from all buttons and outputs
-            outputTabButtons.forEach(btn => btn.classList.remove('active'));
-            outputs.forEach(output => output.classList.remove('active'));
-
-            // Add active class to clicked button and corresponding output
-            button.classList.add('active');
-            const targetOutput = button.getAttribute('data-output');
-            document.getElementById(targetOutput).classList.add('active');
-        });
-    });
-}
-
-// Handle run button click
-function setupRunButton() {
-    const runButton = document.getElementById('run-btn');
-    const runType = document.getElementById('run-type');
-
-    runButton.addEventListener('click', () => {
-        if (runType.value === 'web') {
-            runWebCode();
-        } else if (runType.value === 'python') {
-            runPythonCode();
+    // Keyboard shortcut (Ctrl+Enter) to run code
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'Enter') {
+            runCode();
+            e.preventDefault();
         }
     });
-}
 
-// Handle messages from the iframe
-function setupMessageListener() {
-    window.addEventListener('message', (event) => {
-        if (event.data && event.data.type === 'log') {
-            logToConsole(event.data.content, event.data.level);
-        }
+    // Tab key behavior in textareas (insert tab instead of changing focus)
+    const editors = [htmlEditor, cssEditor, jsEditor, pythonEditor];
+    editors.forEach(editor => {
+        editor.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+
+                // Insert a tab at cursor position
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+
+                this.value = this.value.substring(0, start) +
+                            '    ' + // 4 spaces for a tab
+                            this.value.substring(end);
+
+                // Move cursor after the inserted tab
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+
+        // Save to localStorage when editor content changes
+        editor.addEventListener('input', saveToLocalStorage);
     });
-}
 
-// Initialize everything when the DOM is loaded
-document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize editors
-    initializeEditors();
+    // Function to run all code
+    function runCode() {
+        // Clear previous console output but keep a history marker
+        const historyMarker = document.createElement('div');
+        historyMarker.className = 'console-history-marker';
+        historyMarker.textContent = '--- New Execution ---';
+        consoleOutput.appendChild(historyMarker);
 
-    // Set up tab switching
-    setupTabSwitching();
+        // Get code from editors
+        const htmlCode = htmlEditor.value;
+        const cssCode = cssEditor.value;
+        const jsCode = jsEditor.value;
+        const pythonCode = pythonEditor.value;
 
-    // Set up run button
-    setupRunButton();
+        // Create content for the iframe
+        const iframeContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    ${cssCode}
+                </style>
+                <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
+            </head>
+            <body onload="brython()">
+                ${htmlCode}
 
-    // Set up message listener
-    setupMessageListener();
+                <script type="text/python">
+                ${pythonCode}
+                </script>
 
-    // Initialize Pyodide
-    try {
-        await initializePyodide();
-    } catch (error) {
-        logToConsole(`Failed to initialize Python environment: ${error.message}`, 'error');
+                <script>
+                // Custom console log to capture JavaScript console output
+                (function() {
+                    const originalConsole = {
+                        log: console.log,
+                        error: console.error,
+                        warn: console.warn,
+                        info: console.info
+                    };
+
+                    // Redirect console methods to parent
+                    console.log = function() {
+                        originalConsole.log.apply(console, arguments);
+                        sendToConsole('log', arguments);
+                    };
+
+                    console.error = function() {
+                        originalConsole.error.apply(console, arguments);
+                        sendToConsole('error', arguments);
+                    };
+
+                    console.warn = function() {
+                        originalConsole.warn.apply(console, arguments);
+                        sendToConsole('warn', arguments);
+                    };
+
+                    console.info = function() {
+                        originalConsole.info.apply(console, arguments);
+                        sendToConsole('info', arguments);
+                    };
+
+                    function sendToConsole(method, args) {
+                        const message = Array.from(args).map(arg =>
+                            typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+                        ).join(' ');
+
+                        window.parent.postMessage({
+                            type: 'console',
+                            method: method,
+                            message: message
+                        }, '*');
+                    }
+
+                    // Catch and report errors
+                    window.addEventListener('error', function(e) {
+                        sendToConsole('error', [`JavaScript Error: ${e.message} at line ${e.lineno}`]);
+                        return false;
+                    });
+                })();
+
+                // Execute JavaScript code
+                try {
+                    ${jsCode}
+                } catch(error) {
+                    console.error('JavaScript Error:', error.message);
+                }
+                </script>
+            </body>
+            </html>
+        `;
+
+        // Write to the iframe
+        const iframe = outputFrame;
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(iframeContent);
+        iframeDoc.close();
+
+        // Save code to localStorage
+        saveToLocalStorage();
     }
 
-    // Run initial web code preview
-    runWebCode();
+    // Function to clear all editors and output
+    function clearAll() {
+        if (confirm('Are you sure you want to clear all code and console output?')) {
+            htmlEditor.value = '';
+            cssEditor.value = '';
+            jsEditor.value = '';
+            pythonEditor.value = '';
+            consoleOutput.innerHTML = '';
+
+            // Clear the iframe
+            const iframe = outputFrame;
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write('');
+            iframeDoc.close();
+
+            // Clear localStorage
+            localStorage.removeItem('codeEditorHTML');
+            localStorage.removeItem('codeEditorCSS');
+            localStorage.removeItem('codeEditorJS');
+            localStorage.removeItem('codeEditorPython');
+        }
+    }
+
+    // Function to save editor content to localStorage
+    function saveToLocalStorage() {
+        localStorage.setItem('codeEditorHTML', htmlEditor.value);
+        localStorage.setItem('codeEditorCSS', cssEditor.value);
+        localStorage.setItem('codeEditorJS', jsEditor.value);
+        localStorage.setItem('codeEditorPython', pythonEditor.value);
+    }
+
+    // Function to load editor content from localStorage
+    function loadFromLocalStorage() {
+        htmlEditor.value = localStorage.getItem('codeEditorHTML') || '';
+        cssEditor.value = localStorage.getItem('codeEditorCSS') || '';
+        jsEditor.value = localStorage.getItem('codeEditorJS') || '';
+        pythonEditor.value = localStorage.getItem('codeEditorPython') || '';
+    }
+
+    // Listen for console messages from the iframe
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'console') {
+            const pre = document.createElement('pre');
+            pre.classList.add('js-output');
+
+            if (event.data.method === 'error') {
+                pre.classList.add('error');
+            }
+
+            pre.textContent = event.data.message;
+            consoleOutput.appendChild(pre);
+
+            // Scroll console to bottom
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+    });
+
+    // Set some initial sample code if editors are empty
+    if (!htmlEditor.value && !cssEditor.value && !jsEditor.value && !pythonEditor.value) {
+        htmlEditor.value = '<div id="output">Hello World!</div>';
+        cssEditor.value = '#output {\n    color: blue;\n    font-size: 24px;\n    text-align: center;\n    margin-top: 50px;\n}';
+        jsEditor.value = 'console.log("JavaScript is running!");\n\n// You can modify the DOM\ndocument.getElementById("output").innerHTML += "<br>Modified by JavaScript";';
+        pythonEditor.value = 'from browser import document, html\n\n# Python can also modify the DOM\ndocument["output"] <= html.BR() + "Modified by Python"\n\nprint("Python is running!")';
+
+        // Save this initial code to localStorage
+        saveToLocalStorage();
+    }
+
+    // Run the code on initial load
+    runCode();
 });
