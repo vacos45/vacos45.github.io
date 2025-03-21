@@ -1,32 +1,71 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>PyBrowser IDE</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Python Execution</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
 </head>
 <body>
     <div class="container">
-        <!-- Code Editors -->
-        <div class="editor" id="python-editor">
-            <div class="toolbar">
-                <button onclick="runCode()">▶ Run (Ctrl+Enter)</button>
-                <button onclick="togglePackageManager()">📦 Packages</button>
+        <header>
+            <h1>Real Python Execution</h1>
+            <div class="package-manager">
+                <input type="text" id="package-input" placeholder="Search PyPI packages...">
+                <button id="install-btn">Install Package</button>
+                <div class="package-list" id="package-results"></div>
             </div>
-            <textarea id="python-code" placeholder="# Python code here"></textarea>
-        </div>
+        </header>
 
-        <!-- Package Manager -->
-        <div class="package-manager" id="package-manager">
-            <input type="search" placeholder="Search PyPI packages..." id="pkg-search">
-            <div id="package-list"></div>
-        </div>
+        <main>
+            <div class="editor-container">
+                <div class="editor-header">
+                    <h2>Python Code</h2>
+                    <button id="run-btn">Run Code</button>
+                </div>
+                <textarea id="code-editor" placeholder="Write your Python code here...
+# Example:
+# Access DOM elements
+document.getElementById('preview').contentDocument.body.innerHTML = '<h1>Hello from Python!</h1>'
 
-        <!-- Preview & Console -->
-        <iframe id="preview" sandbox="allow-scripts allow-same-origin"></iframe>
-        <div id="console"><div class="log" id="console-content"></div></div>
+# Install packages
+# import micropip
+# await micropip.install('numpy')"></textarea>
+            </div>
+
+            <div class="output-container">
+                <div class="console-container">
+                    <h2>Console Output</h2>
+                    <div id="console" class="console"></div>
+                    <button id="clear-console-btn">Clear Console</button>
+                </div>
+
+                <div class="preview-container">
+                    <h2>Preview</h2>
+                    <iframe id="preview" sandbox="allow-scripts"></iframe>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="features">
+                <div class="feature">
+                    <h3>Full WebAssembly Python 3.10</h3>
+                    <p>Complete Python runtime via Pyodide</p>
+                </div>
+                <div class="feature">
+                    <h3>Package Management</h3>
+                    <p>Install any PyPI package with micropip</p>
+                </div>
+                <div class="feature">
+                    <h3>DOM Manipulation</h3>
+                    <p>Access and modify DOM through Python-JS interop</p>
+                </div>
+            </div>
+        </footer>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
