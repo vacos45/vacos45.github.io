@@ -3,67 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Editor</title>
+    <title>Web-Based Code Editor with Python Support</title>
+    <!-- Brython 3.11.0 from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
+
+    <!-- Basic syntax highlighting with CSS -->
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" integrity="sha512-GZ1RIgZaSc8rnco/8CXfRdCpDxRCphenIiZ2ztLy3XQfCbQUSCuk8IudvNHxkRA3oUg6q0qejgN/qqyG1duv5Q==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-html.min.js" integrity="sha512-C/D7Lu/9RH1tXXjCIex06Y9VKrxtjBzjzHitaxoLFxaYsjFLqU/mEuZYvkYXQ0/n1nQQrEQ+EIl4zhK6uQBfeg==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-css.min.js" integrity="sha512-iD148JJ1IcWHbz3ZYiKBSfA0OMXYMrGe2zP4O9AChL/Ho+wJcgU0pXXpYS7GMXS2bzkrQlfGrApDU7XoM0XxXQ==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-javascript.min.js" integrity="sha512-9n7cIAr/FfcHXO0FKwxx9Xm1luUtwaDzThiQ8kTGJNIpil+uRBs8aQT74jG/1NRJG/hUFI42u3zFLaRx5VjQyA==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-python.min.js" integrity="sha512-2Ke4vMGrMfYRM55pT1aA5bw7Pl82Sc7K5Hg8XZYZu+EQrb0AO1mNYTagwZm+MFVAImYS9Mlnm9zllxJ4PjhCig==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/theme-monokai.min.js" integrity="sha512-S4i/WUGRs22+8rjUVu4kBjfNuBNp8GVsgcK2lbaFdws4q6TF3Ud8RBdlYprqgUNr8rdbKnGKsdLriCfM4jRPDw==" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <script src="script.js" defer></script>
 </head>
-<body>
-    <header>
-        <h1>Code Editor</h1>
-    </header>
-
-    <main>
-        <div class="editor-container">
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="html">HTML</button>
-                <button class="tab-btn" data-tab="css">CSS</button>
-                <button class="tab-btn" data-tab="js">JavaScript</button>
-                <button class="tab-btn" data-tab="python">Python</button>
+<body onload="brython()">
+    <div class="editor-container">
+        <header>
+            <h1>Web-Based Code Editor with Python Support</h1>
+            <div class="buttons">
+                <button id="runBtn" title="Run (Ctrl+Enter)">Run</button>
+                <button id="clearBtn">Clear</button>
             </div>
+        </header>
 
-            <div class="editors">
-                <div id="html-editor" class="editor active">// HTML Code Here</div>
-                <div id="css-editor" class="editor">/* CSS Code Here */</div>
-                <div id="js-editor" class="editor">// JavaScript Code Here</div>
-                <div id="python-editor" class="editor"># Python Code Here</div>
-            </div>
-
-            <div class="controls">
-                <button id="run-btn">Run Code</button>
-                <select id="run-type">
-                    <option value="web">Run HTML/CSS/JS</option>
-                    <option value="python">Run Python</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="output-container">
-            <div class="output-tabs">
-                <button class="output-tab-btn active" data-output="preview">Preview</button>
-                <button class="output-tab-btn" data-output="console">Console</button>
-            </div>
-
-            <div class="outputs">
-                <div id="preview" class="output active">
-                    <iframe id="preview-frame"></iframe>
+        <main class="editor-grid">
+            <!-- HTML Editor -->
+            <div class="editor-panel html-panel">
+                <div class="editor-header">
+                    <h2>HTML</h2>
                 </div>
-                <div id="console" class="output">
-                    <div id="console-output"></div>
-                </div>
+                <textarea id="htmlEditor" placeholder="Write your HTML code here..." spellcheck="false"></textarea>
             </div>
-        </div>
-    </main>
 
-    <footer>
-        <p>Code Editor with HTML, CSS, JavaScript, and Python support</p>
-    </footer>
+            <!-- CSS Editor -->
+            <div class="editor-panel css-panel">
+                <div class="editor-header">
+                    <h2>CSS</h2>
+                </div>
+                <textarea id="cssEditor" placeholder="Write your CSS code here..." spellcheck="false"></textarea>
+            </div>
 
-    <script src="script.js"></script>
+            <!-- JavaScript Editor -->
+            <div class="editor-panel js-panel">
+                <div class="editor-header">
+                    <h2>JavaScript</h2>
+                </div>
+                <textarea id="jsEditor" placeholder="Write your JavaScript code here..." spellcheck="false"></textarea>
+            </div>
+
+            <!-- Python Editor -->
+            <div class="editor-panel python-panel">
+                <div class="editor-header">
+                    <h2>Python</h2>
+                </div>
+                <textarea id="pythonEditor" placeholder="Write your Python code here..." spellcheck="false"></textarea>
+            </div>
+
+            <!-- Output Preview -->
+            <div class="output-panel">
+                <div class="editor-header">
+                    <h2>Output</h2>
+                </div>
+                <iframe id="outputFrame" frameborder="0"></iframe>
+            </div>
+
+            <!-- Console Output -->
+            <div class="console-panel">
+                <div class="editor-header">
+                    <h2>Console</h2>
+                </div>
+                <div id="consoleOutput"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Python script that will run Brython -->
+    <script type="text/python" id="pythonRunner">
+from browser import document, window, console
+import sys
+
+# Redirect Python print to the console output
+class PythonConsole:
+    def __init__(self, console_id):
+        self.console_elem = document[console_id]
+        self.buffer = ""
+
+    def write(self, text):
+        self.buffer += text
+        if text.endswith('\n'):
+            self.flush()
+
+    def flush(self):
+        # Append the buffered text to the console
+        if self.buffer:
+            pre = document.createElement('pre')
+            pre.classList.add('python-output')
+            pre.textContent = self.buffer
+            self.console_elem.appendChild(pre)
+            self.buffer = ""
+            # Scroll to the bottom
+            self.console_elem.scrollTop = self.console_elem.scrollHeight
+
+# Initialize the console redirection
+sys.stdout = PythonConsole("consoleOutput")
+sys.stderr = PythonConsole("consoleOutput")
+
+# Run the Python code
+def run_python(code):
+    try:
+        exec(code)
+    except Exception as e:
+        console.error(str(e))
+        print(f"Error: {str(e)}")
+
+# Expose the run_python function to JavaScript
+window.run_python = run_python
+    </script>
 </body>
 </html>
