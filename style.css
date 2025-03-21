@@ -183,8 +183,8 @@ pre {
   margin: 15px 0;
 }
 
-/* Ultra-Enhanced Terminal Styles */
-#enhanced-terminal {
+/* Challenge Terminal Styles */
+#challenge-terminal {
   background: #121212;
   color: #00ff00;
   font-family: "Courier New", monospace;
@@ -197,12 +197,12 @@ pre {
   position: relative;
   border: 1px solid #00ff00;
 }
-#terminal-output {
+#challenge-output {
   white-space: pre-wrap;
   margin-bottom: 10px;
   font-size: 1.05em;
 }
-#terminal-input-line {
+#challenge-input-line {
   display: flex;
   align-items: center;
   position: relative;
@@ -211,7 +211,7 @@ pre {
   margin-right: 10px;
   font-weight: bold;
 }
-#terminal-input {
+#challenge-input {
   flex: 1;
   background: transparent;
   border: none;
