@@ -16,6 +16,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+    <!-- CodeMirror for debugging -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/selection/active-line.min.js"></script>
     <!-- Socket.io for collaborative coding -->
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
     <!-- UUID generator -->
@@ -50,41 +52,123 @@
                 </div>
                 <div class="file-system-actions">
                     <button id="file-system-btn">File System</button>
+                    <button id="env-manager-btn">Environments</button>
+                    <button id="examples-btn">Examples Gallery</button>
                 </div>
+            </div>
+            <div class="header-tabs">
+                <div class="tab active" data-tab="editor">Editor</div>
+                <div class="tab" data-tab="testing">Unit Tests</div>
+                <div class="tab" data-tab="debugger">Debugger</div>
             </div>
         </header>
 
         <main>
-            <div class="editor-container">
-                <div class="editor-header">
-                    <h2>Python Code</h2>
-                    <div class="editor-actions">
-                        <select id="template-selector">
-                            <option value="">Select Template...</option>
-                            <option value="hello-world">Hello World</option>
-                            <option value="dom-manipulation">DOM Manipulation</option>
-                            <option value="numpy-example">NumPy Example</option>
-                            <option value="matplotlib-example">Matplotlib Example</option>
-                        </select>
-                        <button id="save-btn">Save</button>
-                        <button id="load-btn">Load</button>
-                        <button id="run-btn">Run Code</button>
+            <div class="tab-content" id="editor-tab" style="display: flex;">
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <h2>Python Code</h2>
+                        <div class="editor-actions">
+                            <select id="template-selector">
+                                <option value="">Select Template...</option>
+                                <option value="hello-world">Hello World</option>
+                                <option value="dom-manipulation">DOM Manipulation</option>
+                                <option value="numpy-example">NumPy Example</option>
+                                <option value="matplotlib-example">Matplotlib Example</option>
+                            </select>
+                            <button id="save-btn">Save</button>
+                            <button id="load-btn">Load</button>
+                            <button id="run-btn">Run Code</button>
+                        </div>
+                    </div>
+                    <!-- Replace textarea with div for CodeMirror -->
+                    <div id="code-editor"></div>
+                </div>
+
+                <div class="output-container">
+                    <div class="console-container">
+                        <h2>Console Output</h2>
+                        <div id="console" class="console"></div>
+                        <button id="clear-console-btn">Clear Console</button>
+                    </div>
+
+                    <div class="preview-container">
+                        <h2>Preview</h2>
+                        <iframe id="preview" sandbox="allow-scripts"></iframe>
                     </div>
                 </div>
-                <!-- Replace textarea with div for CodeMirror -->
-                <div id="code-editor"></div>
             </div>
 
-            <div class="output-container">
-                <div class="console-container">
-                    <h2>Console Output</h2>
-                    <div id="console" class="console"></div>
-                    <button id="clear-console-btn">Clear Console</button>
+            <div class="tab-content" id="testing-tab" style="display: none;">
+                <div class="testing-container">
+                    <div class="test-editor-container">
+                        <div class="editor-header">
+                            <h2>Unit Tests</h2>
+                            <div class="editor-actions">
+                                <select id="test-template-selector">
+                                    <option value="">Test Templates...</option>
+                                    <option value="unittest-basic">Basic unittest</option>
+                                    <option value="pytest-basic">Basic pytest</option>
+                                    <option value="unittest-example">Example unittest</option>
+                                </select>
+                                <button id="run-tests-btn">Run Tests</button>
+                            </div>
+                        </div>
+                        <div id="test-editor"></div>
+                    </div>
+                    <div class="test-results-container">
+                        <h2>Test Results</h2>
+                        <div id="test-results" class="test-results">
+                            <div class="test-summary">
+                                <div class="test-stats">
+                                    <span id="tests-total">0</span> tests,
+                                    <span id="tests-passed" class="success">0</span> passed,
+                                    <span id="tests-failed" class="error">0</span> failed
+                                </div>
+                                <div class="test-progress">
+                                    <div id="test-progress-bar" class="test-progress-bar"></div>
+                                </div>
+                            </div>
+                            <div id="test-details" class="test-details"></div>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <div class="preview-container">
-                    <h2>Preview</h2>
-                    <iframe id="preview" sandbox="allow-scripts"></iframe>
+            <div class="tab-content" id="debugger-tab" style="display: none;">
+                <div class="debugger-container">
+                    <div class="debug-editor-container">
+                        <div class="editor-header">
+                            <h2>Debug Python Code</h2>
+                            <div class="debugger-actions">
+                                <button id="debug-start-btn">Start</button>
+                                <button id="debug-step-btn" disabled>Step</button>
+                                <button id="debug-continue-btn" disabled>Continue</button>
+                                <button id="debug-stop-btn" disabled>Stop</button>
+                            </div>
+                        </div>
+                        <div id="debug-editor"></div>
+                    </div>
+                    <div class="debug-panel">
+                        <div class="debug-panel-header">
+                            <div class="tab-buttons">
+                                <button class="debug-tab-btn active" data-tab="variables">Variables</button>
+                                <button class="debug-tab-btn" data-tab="call-stack">Call Stack</button>
+                                <button class="debug-tab-btn" data-tab="breakpoints">Breakpoints</button>
+                            </div>
+                        </div>
+                        <div class="debug-panel-content">
+                            <div class="debug-panel-tab active" id="variables-tab">
+                                <div id="debug-variables" class="debug-variables"></div>
+                            </div>
+                            <div class="debug-panel-tab" id="call-stack-tab">
+                                <div id="debug-call-stack" class="debug-call-stack"></div>
+                            </div>
+                            <div class="debug-panel-tab" id="breakpoints-tab">
+                                <div id="debug-breakpoints" class="debug-breakpoints"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -150,6 +234,65 @@
                     </div>
                     <div class="package-list-container">
                         <div id="package-browser-list" class="package-browser-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environment Manager Modal -->
+        <div id="env-manager-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Python Environment Manager</h2>
+                <div class="env-manager-container">
+                    <div class="env-list-container">
+                        <div class="env-list-header">
+                            <h3>Environments</h3>
+                            <button id="new-env-btn">New Environment</button>
+                        </div>
+                        <div id="env-list" class="env-list"></div>
+                    </div>
+                    <div class="env-details-container">
+                        <div class="env-header">
+                            <input type="text" id="env-name" placeholder="Environment name">
+                            <div class="env-buttons">
+                                <button id="save-env-btn">Save</button>
+                                <button id="delete-env-btn">Delete</button>
+                                <button id="activate-env-btn">Activate</button>
+                            </div>
+                        </div>
+                        <h3>Packages</h3>
+                        <div class="env-packages">
+                            <div class="add-package">
+                                <input type="text" id="new-package-name" placeholder="Package name">
+                                <input type="text" id="new-package-version" placeholder="Version (optional)">
+                                <button id="add-package-btn">Add</button>
+                            </div>
+                            <div id="env-packages-list" class="env-packages-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Examples Gallery Modal -->
+        <div id="examples-modal" class="modal">
+            <div class="modal-content examples-content">
+                <span class="close-modal">&times;</span>
+                <h2>Python Examples Gallery</h2>
+                <div class="examples-container">
+                    <div class="examples-categories">
+                        <ul>
+                            <li data-category="basics" class="active">Basics</li>
+                            <li data-category="data-visualization">Data Visualization</li>
+                            <li data-category="web">Web Development</li>
+                            <li data-category="machine-learning">Machine Learning</li>
+                            <li data-category="algorithms">Algorithms</li>
+                            <li data-category="gui">GUI</li>
+                        </ul>
+                    </div>
+                    <div class="examples-list-container">
+                        <div id="examples-list" class="examples-list"></div>
                     </div>
                 </div>
             </div>
