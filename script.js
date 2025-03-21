@@ -1,202 +1,330 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Elements
-    const scriptsContainer = document.getElementById('scripts-container');
-    const searchInput = document.getElementById('search-input');
-    const searchButton = document.getElementById('search-button');
-    const prevPageButton = document.getElementById('prev-page');
-    const nextPageButton = document.getElementById('next-page');
-    const pageInfo = document.getElementById('page-info');
+// Initialize variables for editor instances
+let htmlEditor, cssEditor, jsEditor, pythonEditor;
+let pyodideInstance;
+let consoleOutput = document.getElementById('console-output');
+let isLoading = false;
 
-    // State variables
-    let currentPage = 1;
-    let totalPages = 1;
-    let currentSearchQuery = '';
+// Function to log messages to the console
+function logToConsole(message, type = 'info') {
+    const span = document.createElement('span');
+    span.className = `log-${type}`;
+    span.textContent = message + '\n';
+    consoleOutput.appendChild(span);
+    consoleOutput.scrollTop = consoleOutput.scrollHeight;
+}
 
-    // Initialize
-    fetchScripts();
+// Initialize Ace Editor instances
+function initializeEditors() {
+    // Configure HTML Editor
+    htmlEditor = ace.edit("html-editor");
+    htmlEditor.setTheme("ace/theme/monokai");
+    htmlEditor.session.setMode("ace/mode/html");
+    htmlEditor.setValue(`<!DOCTYPE html>
+<html>
+<head>
+    <title>HTML Preview</title>
+</head>
+<body>
+    <h1>Hello, World!</h1>
+    <p>Edit the HTML, CSS, and JavaScript to see changes here.</p>
+</body>
+</html>`);
 
-    // Event listeners
-    searchButton.addEventListener('click', handleSearch);
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
-    });
-    prevPageButton.addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            if (currentSearchQuery) {
-                searchScripts(currentSearchQuery, currentPage);
-            } else {
-                fetchScripts(currentPage);
-            }
-        }
-    });
-    nextPageButton.addEventListener('click', () => {
-        if (currentPage < totalPages) {
-            currentPage++;
-            if (currentSearchQuery) {
-                searchScripts(currentSearchQuery, currentPage);
-            } else {
-                fetchScripts(currentPage);
-            }
-        }
-    });
+    // Configure CSS Editor
+    cssEditor = ace.edit("css-editor");
+    cssEditor.setTheme("ace/theme/monokai");
+    cssEditor.session.setMode("ace/mode/css");
+    cssEditor.setValue(`body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
 
-    // Function to handle search
-    function handleSearch() {
-        const query = searchInput.value.trim();
-        if (query) {
-            currentSearchQuery = query;
-            currentPage = 1;
-            searchScripts(query, currentPage);
+h1 {
+    color: navy;
+}
+
+p {
+    color: #333;
+}`);
+
+    // Configure JavaScript Editor
+    jsEditor = ace.edit("js-editor");
+    jsEditor.setTheme("ace/theme/monokai");
+    jsEditor.session.setMode("ace/mode/javascript");
+    jsEditor.setValue(`// This JavaScript will run in the preview
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('JavaScript is running!');
+
+    const heading = document.querySelector('h1');
+    if (heading) {
+        heading.addEventListener('click', function() {
+            this.style.color = this.style.color === 'red' ? 'navy' : 'red';
+            console.log('Heading color changed');
+        });
+    }
+});`);
+
+    // Configure Python Editor
+    pythonEditor = ace.edit("python-editor");
+    pythonEditor.setTheme("ace/theme/monokai");
+    pythonEditor.session.setMode("ace/mode/python");
+    pythonEditor.setValue(`# Python code example
+import sys
+
+def greet(name):
+    return f"Hello, {name}!"
+
+# Print to console
+print(greet("World"))
+print("Python version:", sys.version)
+
+# Create a list and manipulate it
+numbers = [1, 2, 3, 4, 5]
+squared = [x**2 for x in numbers]
+print("Original:", numbers)
+print("Squared:", squared)`);
+}
+
+// Initialize Pyodide
+async function initializePyodide() {
+    try {
+        logToConsole("Loading Python environment...");
+        pyodideInstance = await loadPyodide();
+        logToConsole("Python environment loaded successfully!");
+    } catch (error) {
+        logToConsole(`Error loading Python: ${error.message}`, 'error');
+    }
+}
+
+// Run HTML/CSS/JS code
+function runWebCode() {
+    const htmlCode = htmlEditor.getValue();
+    const cssCode = cssEditor.getValue();
+    const jsCode = jsEditor.getValue();
+
+    const previewFrame = document.getElementById('preview-frame');
+    const preview = previewFrame.contentWindow.document;
+
+    // Clear previous console output
+    consoleOutput.innerHTML = '';
+
+    // Write the HTML, including the CSS and JS
+    preview.open();
+    preview.write(`
+        ${htmlCode}
+        <style>${cssCode}</style>
+        <script>
+            // Capture console.log output
+            (function() {
+                const originalLog = console.log;
+                const originalError = console.error;
+                const originalWarn = console.warn;
+                const originalInfo = console.info;
+
+                console.log = function(...args) {
+                    originalLog.apply(console, args);
+                    window.parent.postMessage({
+                        type: 'log',
+                        level: 'info',
+                        content: args.map(arg => String(arg)).join(' ')
+                    }, '*');
+                };
+
+                console.error = function(...args) {
+                    originalError.apply(console, args);
+                    window.parent.postMessage({
+                        type: 'log',
+                        level: 'error',
+                        content: args.map(arg => String(arg)).join(' ')
+                    }, '*');
+                };
+
+                console.warn = function(...args) {
+                    originalWarn.apply(console, args);
+                    window.parent.postMessage({
+                        type: 'log',
+                        level: 'warn',
+                        content: args.map(arg => String(arg)).join(' ')
+                    }, '*');
+                };
+
+                console.info = function(...args) {
+                    originalInfo.apply(console, args);
+                    window.parent.postMessage({
+                        type: 'log',
+                        level: 'info',
+                        content: args.map(arg => String(arg)).join(' ')
+                    }, '*');
+                };
+
+                window.onerror = function(message, source, lineno, colno, error) {
+                    window.parent.postMessage({
+                        type: 'log',
+                        level: 'error',
+                        content: 'Error: ' + message + ' at line ' + lineno + ':' + colno
+                    }, '*');
+                    return true;
+                };
+            })();
+        </script>
+        <script>${jsCode}</script>
+    `);
+    preview.close();
+
+    // Switch to preview tab
+    document.querySelector('[data-output="preview"]').click();
+}
+
+// Run Python code
+async function runPythonCode() {
+    if (!pyodideInstance) {
+        logToConsole("Python environment is not loaded yet. Please wait or reload the page.", 'error');
+        return;
+    }
+
+    if (isLoading) {
+        logToConsole("Please wait, another Python operation is in progress...", 'warn');
+        return;
+    }
+
+    isLoading = true;
+    const pythonCode = pythonEditor.getValue();
+
+    // Clear previous output
+    consoleOutput.innerHTML = '';
+    logToConsole("Running Python code...");
+
+    try {
+        // Redirect Python stdout to our console
+        pyodideInstance.runPython(`
+            import sys
+            from io import StringIO
+
+            class PythonOutput:
+                def __init__(self):
+                    self.buffer = StringIO()
+
+                def write(self, text):
+                    self.buffer.write(text)
+                    return len(text)
+
+                def flush(self):
+                    pass
+
+            python_output = PythonOutput()
+            sys.stdout = python_output
+            sys.stderr = python_output
+        `);
+
+        // Run the user's Python code
+        pyodideInstance.runPython(pythonCode);
+
+        // Get the output
+        const output = pyodideInstance.runPython("python_output.buffer.getvalue()");
+        if (output) {
+            logToConsole(output);
         } else {
-            currentSearchQuery = '';
-            currentPage = 1;
-            fetchScripts(currentPage);
+            logToConsole("Code executed with no output.");
         }
+    } catch (error) {
+        logToConsole(`Error: ${error.message}`, 'error');
+    } finally {
+        isLoading = false;
     }
 
-    // Function to fetch scripts
-    async function fetchScripts(page = 1) {
-        showLoading();
-        try {
-            const proxyUrl = `https://scriptblox-api-proxy.vercel.app/api/fetch?page=${page}`;
-            const response = await fetch(proxyUrl);
-            const data = await response.json();
+    // Switch to console tab
+    document.querySelector('[data-output="console"]').click();
+}
 
-            if (data && data.result) {
-                displayScripts(data.result.scripts);
-                updatePagination(page, data.result.totalPages);
-            } else {
-                showError('Failed to fetch scripts');
-            }
-        } catch (error) {
-            console.error('Error fetching scripts:', error);
-            showError('Error fetching scripts. Please try again later.');
-        }
-    }
+// Tab switching functionality
+function setupTabSwitching() {
+    // Editor tabs
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const editors = document.querySelectorAll('.editor');
 
-    // Function to search scripts
-    async function searchScripts(query, page = 1) {
-        showLoading();
-        try {
-            const proxyUrl = `https://scriptblox-api-proxy.vercel.app/api/search?q=${encodeURIComponent(query)}&mode=free&page=${page}`;
-            const response = await fetch(proxyUrl);
-            const data = await response.json();
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons and editors
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            editors.forEach(editor => editor.classList.remove('active'));
 
-            if (data && data.result) {
-                displayScripts(data.result.scripts);
-                updatePagination(page, data.result.totalPages);
-            } else {
-                showError('No scripts found');
-            }
-        } catch (error) {
-            console.error('Error searching scripts:', error);
-            showError('Error searching scripts. Please try again later.');
-        }
-    }
+            // Add active class to clicked button and corresponding editor
+            button.classList.add('active');
+            const targetTab = button.getAttribute('data-tab');
+            document.getElementById(`${targetTab}-editor`).classList.add('active');
 
-    // Function to display scripts
-    function displayScripts(scripts) {
-        if (!scripts || scripts.length === 0) {
-            scriptsContainer.innerHTML = '<div class="loading">No scripts found</div>';
-            return;
-        }
-
-        scriptsContainer.innerHTML = '';
-
-        scripts.forEach(script => {
-            const scriptCard = document.createElement('div');
-            scriptCard.className = 'script-card';
-
-            const scriptType = script.scriptType || 'free';
-            const scriptCode = script.script || 'No script code available';
-
-            scriptCard.innerHTML = `
-                <h2 class="script-title">${script.title}</h2>
-                <div class="script-game">${script.game?.name || 'Universal Script'}</div>
-                <div class="script-code">
-                    ${scriptCode}
-                    <button class="copy-btn" data-script="${escapeHtml(scriptCode)}">Copy</button>
-                </div>
-                <div class="script-details">
-                    <div class="script-views">${formatNumber(script.views || 0)} views</div>
-                    <div class="script-type ${scriptType.toLowerCase()}">${scriptType}</div>
-                </div>
-            `;
-
-            scriptsContainer.appendChild(scriptCard);
+            // Refresh the active editor
+            if (targetTab === 'html') htmlEditor.resize();
+            if (targetTab === 'css') cssEditor.resize();
+            if (targetTab === 'js') jsEditor.resize();
+            if (targetTab === 'python') pythonEditor.resize();
         });
+    });
 
-        // Add event listeners to copy buttons
-        document.querySelectorAll('.copy-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const scriptCode = button.getAttribute('data-script');
-                copyToClipboard(scriptCode);
-                button.textContent = 'Copied!';
-                setTimeout(() => {
-                    button.textContent = 'Copy';
-                }, 2000);
-            });
+    // Output tabs
+    const outputTabButtons = document.querySelectorAll('.output-tab-btn');
+    const outputs = document.querySelectorAll('.output');
+
+    outputTabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons and outputs
+            outputTabButtons.forEach(btn => btn.classList.remove('active'));
+            outputs.forEach(output => output.classList.remove('active'));
+
+            // Add active class to clicked button and corresponding output
+            button.classList.add('active');
+            const targetOutput = button.getAttribute('data-output');
+            document.getElementById(targetOutput).classList.add('active');
         });
-    }
+    });
+}
 
-    // Function to update pagination
-    function updatePagination(currentPage, totalPages) {
-        this.currentPage = currentPage;
-        this.totalPages = totalPages;
+// Handle run button click
+function setupRunButton() {
+    const runButton = document.getElementById('run-btn');
+    const runType = document.getElementById('run-type');
 
-        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-        prevPageButton.disabled = currentPage <= 1;
-        nextPageButton.disabled = currentPage >= totalPages;
-    }
-
-    // Helper function to show loading state
-    function showLoading() {
-        scriptsContainer.innerHTML = '<div class="loading">Loading scripts...</div>';
-    }
-
-    // Helper function to show error message
-    function showError(message) {
-        scriptsContainer.innerHTML = `<div class="loading">${message}</div>`;
-    }
-
-    // Helper function to format numbers (e.g., 1000 -> 1K)
-    function formatNumber(num) {
-        if (num >= 1000000) {
-            return (num / 1000000).toFixed(1) + 'M';
-        } else if (num >= 1000) {
-            return (num / 1000).toFixed(1) + 'K';
+    runButton.addEventListener('click', () => {
+        if (runType.value === 'web') {
+            runWebCode();
+        } else if (runType.value === 'python') {
+            runPythonCode();
         }
-        return num.toString();
+    });
+}
+
+// Handle messages from the iframe
+function setupMessageListener() {
+    window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'log') {
+            logToConsole(event.data.content, event.data.level);
+        }
+    });
+}
+
+// Initialize everything when the DOM is loaded
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize editors
+    initializeEditors();
+
+    // Set up tab switching
+    setupTabSwitching();
+
+    // Set up run button
+    setupRunButton();
+
+    // Set up message listener
+    setupMessageListener();
+
+    // Initialize Pyodide
+    try {
+        await initializePyodide();
+    } catch (error) {
+        logToConsole(`Failed to initialize Python environment: ${error.message}`, 'error');
     }
 
-    // Helper function to escape HTML
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    // Helper function to copy text to clipboard
-    function copyToClipboard(text) {
-        // Create a temporary textarea element
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.setAttribute('readonly', '');
-        textarea.style.position = 'absolute';
-        textarea.style.left = '-9999px';
-        document.body.appendChild(textarea);
-
-        // Select and copy the text
-        textarea.select();
-        document.execCommand('copy');
-
-        // Clean up
-        document.body.removeChild(textarea);
-    }
+    // Run initial web code preview
+    runWebCode();
 });
