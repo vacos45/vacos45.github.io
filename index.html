@@ -1,121 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Advanced Metasploit Mastery on Kali Linux</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1>Advanced Metasploit Mastery on Kali Linux</h1>
-      <nav>
+  <!-- Loader -->
+  <div id="loader">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="content" class="hidden">
+    <!-- Header with Parallax Background -->
+    <header class="parallax">
+      <div class="header-overlay">
+        <div class="container">
+          <h1>Advanced Metasploit Mastery</h1>
+          <p>Unlock the full potential of Metasploit on Kali Linux</p>
+          <nav>
+            <ul>
+              <li><a href="#intro">Intro</a></li>
+              <li><a href="#installation">Install</a></li>
+              <li><a href="#basics">Basics</a></li>
+              <li><a href="#advanced">Advanced</a></li>
+              <li><a href="#customization">Customization</a></li>
+              <li><a href="#terminal">Terminal</a></li>
+              <li><a href="#resources">Resources</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <!-- Introduction Section -->
+      <section id="intro" class="content-section fade-in">
+        <h2>Introduction</h2>
+        <p>
+          Welcome to the advanced guide on using Metasploit on Kali Linux.
+          This resource dives deep into intricate configurations, custom module
+          development, and automated exploitation techniques.
+        </p>
+        <p class="disclaimer">
+          <strong>Disclaimer:</strong> All content is intended for educational
+          purposes only. Unauthorized use of these tools is illegal and unethical.
+        </p>
+      </section>
+
+      <!-- Installation Section -->
+      <section id="installation" class="content-section fade-in">
+        <h2>Installation & Updates</h2>
+        <p>
+          Although Kali Linux includes Metasploit, advanced users often need
+          custom configurations and updates.
+        </p>
+        <ol>
+          <li>
+            <strong>Update Repositories:</strong>
+            <pre>sudo apt update && sudo apt upgrade</pre>
+          </li>
+          <li>
+            <strong>Install/Update Metasploit:</strong>
+            <pre>sudo apt install metasploit-framework</pre>
+          </li>
+          <li>
+            <strong>Verify Version:</strong>
+            <pre>msfconsole --version</pre>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Basics Section -->
+      <section id="basics" class="content-section fade-in">
+        <h2>Basic Commands & Navigation</h2>
+        <p>
+          Launch Metasploit with <code>msfconsole</code> and try these basic commands:
+        </p>
         <ul>
-          <li><a href="#intro">Introduction</a></li>
-          <li><a href="#installation">Installation</a></li>
-          <li><a href="#basics">Basics</a></li>
-          <li><a href="#advanced">Advanced Techniques</a></li>
-          <li><a href="#customization">Customization</a></li>
-          <li><a href="#resources">Resources</a></li>
+          <li><code>help</code> – Displays available commands.</li>
+          <li><code>search</code> – Finds exploits and modules.</li>
+          <li>
+            <code>use</code> – Selects a module (e.g.,
+            <code>use exploit/windows/smb/ms17_010_eternalblue</code>).
+          </li>
+          <li><code>show options</code> – Lists module parameters.</li>
+          <li>
+            <code>set</code> – Configures module options (e.g.,
+            <code>set RHOSTS 192.168.1.100</code>).
+          </li>
+          <li><code>exploit</code> – Executes the attack.</li>
         </ul>
-      </nav>
-    </div>
-  </header>
-  
-  <main class="container">
-    <!-- Introduction Section -->
-    <section id="intro" class="content-section">
-      <h2>Introduction</h2>
-      <p>
-        Welcome to the advanced guide on using Metasploit on Kali Linux. This comprehensive resource goes beyond the basics, delving into intricate configurations, custom module development, and automated exploitation techniques.
-      </p>
-      <p class="disclaimer">
-        <strong>Disclaimer:</strong> All content is intended for educational purposes only. Unauthorized use of these tools is illegal and unethical.
-      </p>
-    </section>
-    
-    <!-- Installation Section -->
-    <section id="installation" class="content-section">
-      <h2>Installation & Updates</h2>
-      <p>
-        While Kali Linux comes with Metasploit pre-installed, advanced users may wish to update or customize their installation.
-      </p>
-      <ol>
-        <li>
-          <strong>Update Repositories:</strong>
-          <pre>sudo apt update && sudo apt upgrade</pre>
-        </li>
-        <li>
-          <strong>Install/Update Metasploit:</strong>
-          <pre>sudo apt install metasploit-framework</pre>
-        </li>
-        <li>
-          <strong>Verify Version:</strong>
-          <pre>msfconsole --version</pre>
-        </li>
-      </ol>
-    </section>
-    
-    <!-- Basics Section -->
-    <section id="basics" class="content-section">
-      <h2>Basic Commands & Navigation</h2>
-      <p>
-        Launch Metasploit with <code>msfconsole</code> and try out these essential commands:
-      </p>
-      <ul>
-        <li><code>help</code> – Displays all available commands.</li>
-        <li><code>search</code> – Finds exploits and modules.</li>
-        <li><code>use</code> – Selects a module (e.g., <code>use exploit/windows/smb/ms17_010_eternalblue</code>).</li>
-        <li><code>show options</code> – Lists required parameters for the selected module.</li>
-        <li><code>set</code> – Configures module options (e.g., <code>set RHOSTS 192.168.1.100</code>).</li>
-        <li><code>exploit</code> – Executes the attack.</li>
-      </ul>
-    </section>
-    
-    <!-- Advanced Techniques Section -->
-    <section id="advanced" class="content-section">
-      <h2>Advanced Techniques</h2>
-      <p>
-        Explore deeper functionalities of Metasploit with advanced modules and scripting.
-      </p>
-      <div class="accordion">
-        <button class="accordion-header">Auxiliary Modules & Scanning</button>
-        <div class="accordion-content">
-          <p>
-            Leverage auxiliary modules for comprehensive network scanning, vulnerability detection, and more.
-          </p>
-          <pre>
+      </section>
+
+      <!-- Advanced Techniques Section -->
+      <section id="advanced" class="content-section fade-in">
+        <h2>Advanced Techniques</h2>
+        <p>
+          Explore deeper functionalities with advanced modules and custom scripting.
+        </p>
+        <div class="accordion">
+          <button class="accordion-header">Auxiliary Modules & Scanning</button>
+          <div class="accordion-content">
+            <p>
+              Use auxiliary modules for network scanning and vulnerability detection.
+            </p>
+            <pre>
 use auxiliary/scanner/portscan/tcp
 set RHOSTS 192.168.1.0/24
 run
-          </pre>
-        </div>
-        <button class="accordion-header">Post-Exploitation</button>
-        <div class="accordion-content">
-          <p>
-            After gaining access, post-exploitation modules help in maintaining persistence, gathering data, and escalating privileges.
-          </p>
-          <pre>
+            </pre>
+          </div>
+          <button class="accordion-header">Post-Exploitation Techniques</button>
+          <div class="accordion-content">
+            <p>
+              Use post-exploitation modules to maintain access and escalate privileges.
+            </p>
+            <pre>
 use post/windows/manage/enable_rdp
 set SESSION 1
 run
-          </pre>
-        </div>
-        <button class="accordion-header">Scripting & Automation</button>
-        <div class="accordion-content">
-          <p>
-            Customize Metasploit with your own modules. Use Ruby to modify existing modules or create new ones.
-          </p>
-          <pre>
-# Sample Ruby snippet for a custom module
+            </pre>
+          </div>
+          <button class="accordion-header">Scripting & Automation</button>
+          <div class="accordion-content">
+            <p>
+              Customize Metasploit with your own Ruby modules for automation.
+            </p>
+            <pre>
+// Sample Ruby snippet for a custom module
 class MetasploitModule < Msf::Exploit::Remote
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Custom Exploit',
-      'Description'    => %q{
-        This is a custom exploit module.
-      },
+      'Description'    => %q{This is a custom exploit module.},
       'Author'         => [ 'Your Name' ],
       'License'        => MSF_LICENSE,
       'Platform'       => 'win',
@@ -125,54 +149,72 @@ class MetasploitModule < Msf::Exploit::Remote
 
   def exploit
     print_status("Executing custom exploit...")
-    # Insert exploit logic here
+    # Custom exploit logic goes here
   end
 end
-          </pre>
+            </pre>
+          </div>
         </div>
+      </section>
+
+      <!-- Customization Section -->
+      <section id="customization" class="content-section fade-in">
+        <h2>Customization & Module Development</h2>
+        <p>
+          Advanced users tailor Metasploit by developing custom modules, integrating
+          automated workflows, and leveraging plugins.
+        </p>
+        <ul>
+          <li>Develop custom modules using Ruby.</li>
+          <li>Integrate Metasploit into automated security workflows.</li>
+          <li>Utilize community plugins to extend functionality.</li>
+        </ul>
+        <p>
+          Refer to the <a href="https://metasploit.help.rapid7.com/" target="_blank">official documentation</a> for guidelines.
+        </p>
+      </section>
+
+      <!-- Interactive Terminal Section -->
+      <section id="terminal" class="content-section fade-in">
+        <h2>Interactive Command Terminal</h2>
+        <p>
+          Try out some simulated Metasploit commands below. Type a command and hit Enter.
+        </p>
+        <div id="terminal-container">
+          <div id="terminal-output"></div>
+          <div id="terminal-input-line">
+            <span class="prompt">msf&gt;</span>
+            <input type="text" id="terminal-input" autocomplete="off" placeholder="Enter command..." />
+          </div>
+        </div>
+      </section>
+
+      <!-- Resources Section -->
+      <section id="resources" class="content-section fade-in">
+        <h2>Additional Resources & Tutorials</h2>
+        <p>
+          Enhance your expertise with these resources:
+        </p>
+        <ul>
+          <li><a href="https://metasploit.help.rapid7.com/" target="_blank">Official Metasploit Documentation</a></li>
+          <li><a href="https://www.kali.org/docs/" target="_blank">Kali Linux Documentation</a></li>
+          <li><a href="https://www.offensive-security.com/metasploit-unleashed/" target="_blank">Metasploit Unleashed</a></li>
+          <li>Specialized online courses and community forums.</li>
+        </ul>
+      </section>
+
+      <!-- Back-to-Top Button -->
+      <button id="back-to-top" title="Back to Top">↑</button>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <p>&copy; 2025 Advanced Metasploit Mastery. All content is for educational purposes only.</p>
       </div>
-    </section>
-    
-    <!-- Customization Section -->
-    <section id="customization" class="content-section">
-      <h2>Customization & Module Development</h2>
-      <p>
-        Advanced users often tailor Metasploit to their specific needs. This involves:
-      </p>
-      <ul>
-        <li>Developing custom modules with Ruby.</li>
-        <li>Integrating Metasploit into automated workflows with external tools.</li>
-        <li>Utilizing plugins and scripts to extend functionality.</li>
-      </ul>
-      <p>
-        Refer to the <a href="https://metasploit.help.rapid7.com/" target="_blank">official documentation</a> for detailed guidelines.
-      </p>
-    </section>
-    
-    <!-- Resources Section -->
-    <section id="resources" class="content-section">
-      <h2>Additional Resources & Tutorials</h2>
-      <p>
-        Further enhance your expertise with these resources:
-      </p>
-      <ul>
-        <li><a href="https://metasploit.help.rapid7.com/" target="_blank">Official Metasploit Documentation</a></li>
-        <li><a href="https://www.kali.org/docs/" target="_blank">Kali Linux Documentation</a></li>
-        <li><a href="https://www.offensive-security.com/metasploit-unleashed/" target="_blank">Metasploit Unleashed</a></li>
-        <li>Community forums and specialized online courses.</li>
-      </ul>
-    </section>
-    
-    <!-- Back-to-Top Button -->
-    <button id="back-to-top" title="Back to Top">↑</button>
-  </main>
-  
-  <footer>
-    <div class="container">
-      <p>&copy; 2025 Advanced Metasploit Mastery. All content is for educational purposes only.</p>
-    </div>
-  </footer>
-  
+    </footer>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
