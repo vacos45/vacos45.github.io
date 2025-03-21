@@ -1,119 +1,32 @@
+<!-- index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web-Based Code Editor with Python Support</title>
-    <!-- Brython 3.11.0 from CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
-
-    <!-- Basic syntax highlighting with CSS -->
+    <title>PyBrowser IDE</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
 </head>
-<body onload="brython()">
-    <div class="editor-container">
-        <header>
-            <h1>Web-Based Code Editor with Python Support</h1>
-            <div class="buttons">
-                <button id="runBtn" title="Run (Ctrl+Enter)">Run</button>
-                <button id="clearBtn">Clear</button>
+<body>
+    <div class="container">
+        <!-- Code Editors -->
+        <div class="editor" id="python-editor">
+            <div class="toolbar">
+                <button onclick="runCode()">▶ Run (Ctrl+Enter)</button>
+                <button onclick="togglePackageManager()">📦 Packages</button>
             </div>
-        </header>
+            <textarea id="python-code" placeholder="# Python code here"></textarea>
+        </div>
 
-        <main class="editor-grid">
-            <!-- HTML Editor -->
-            <div class="editor-panel html-panel">
-                <div class="editor-header">
-                    <h2>HTML</h2>
-                </div>
-                <textarea id="htmlEditor" placeholder="Write your HTML code here..." spellcheck="false"></textarea>
-            </div>
+        <!-- Package Manager -->
+        <div class="package-manager" id="package-manager">
+            <input type="search" placeholder="Search PyPI packages..." id="pkg-search">
+            <div id="package-list"></div>
+        </div>
 
-            <!-- CSS Editor -->
-            <div class="editor-panel css-panel">
-                <div class="editor-header">
-                    <h2>CSS</h2>
-                </div>
-                <textarea id="cssEditor" placeholder="Write your CSS code here..." spellcheck="false"></textarea>
-            </div>
-
-            <!-- JavaScript Editor -->
-            <div class="editor-panel js-panel">
-                <div class="editor-header">
-                    <h2>JavaScript</h2>
-                </div>
-                <textarea id="jsEditor" placeholder="Write your JavaScript code here..." spellcheck="false"></textarea>
-            </div>
-
-            <!-- Python Editor -->
-            <div class="editor-panel python-panel">
-                <div class="editor-header">
-                    <h2>Python</h2>
-                </div>
-                <textarea id="pythonEditor" placeholder="Write your Python code here..." spellcheck="false"></textarea>
-            </div>
-
-            <!-- Output Preview -->
-            <div class="output-panel">
-                <div class="editor-header">
-                    <h2>Output</h2>
-                </div>
-                <iframe id="outputFrame" frameborder="0"></iframe>
-            </div>
-
-            <!-- Console Output -->
-            <div class="console-panel">
-                <div class="editor-header">
-                    <h2>Console</h2>
-                </div>
-                <div id="consoleOutput"></div>
-            </div>
-        </main>
+        <!-- Preview & Console -->
+        <iframe id="preview" sandbox="allow-scripts allow-same-origin"></iframe>
+        <div id="console"><div class="log" id="console-content"></div></div>
     </div>
-
-    <!-- Python script that will run Brython -->
-    <script type="text/python" id="pythonRunner">
-from browser import document, window, console
-import sys
-
-# Redirect Python print to the console output
-class PythonConsole:
-    def __init__(self, console_id):
-        self.console_elem = document[console_id]
-        self.buffer = ""
-
-    def write(self, text):
-        self.buffer += text
-        if text.endswith('\n'):
-            self.flush()
-
-    def flush(self):
-        # Append the buffered text to the console
-        if self.buffer:
-            pre = document.createElement('pre')
-            pre.classList.add('python-output')
-            pre.textContent = self.buffer
-            self.console_elem.appendChild(pre)
-            self.buffer = ""
-            # Scroll to the bottom
-            self.console_elem.scrollTop = self.console_elem.scrollHeight
-
-# Initialize the console redirection
-sys.stdout = PythonConsole("consoleOutput")
-sys.stderr = PythonConsole("consoleOutput")
-
-# Run the Python code
-def run_python(code):
-    try:
-        exec(code)
-    except Exception as e:
-        console.error(str(e))
-        print(f"Error: {str(e)}")
-
-# Expose the run_python function to JavaScript
-window.run_python = run_python
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
