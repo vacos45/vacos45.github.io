@@ -1,325 +1,477 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Python Execution</title>
+    <meta name="description" content="Definitive Metasploit Mastery Platform - Learn penetration testing with Metasploit in Kali Linux">
+    <title>Definitive Metasploit Mastery Platform</title>
     <link rel="stylesheet" href="style.css">
-    <!-- CodeMirror CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/eclipse.min.css">
-    <!-- Pyodide -->
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-    <!-- CodeMirror JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
-    <!-- CodeMirror for debugging -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/selection/active-line.min.js"></script>
-    <!-- Socket.io for collaborative coding -->
-    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
-    <!-- UUID generator -->
-    <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuidv4.min.js"></script>
+    <!-- Preload critical assets -->
+    <link rel="preload" href="style.css" as="style">
+    <script src="script.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-top">
-                <h1>Real Python Execution</h1>
-                <div class="global-actions">
-                    <div class="theme-toggle">
-                        <label class="switch">
-                            <input type="checkbox" id="theme-switch">
-                            <span class="slider round"></span>
+    <!-- Authentication Overlay -->
+    <div id="auth-overlay" class="auth-container">
+        <div class="auth-content">
+            <div class="auth-header">
+                <h1>Metasploit Mastery</h1>
+                <p>Advanced learning platform for Metasploit Framework</p>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form">
+                <h2>Log In</h2>
+                <form id="form-login">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="password-input">
+                            <input type="password" id="login-password" class="form-control" required>
+                            <button type="button" class="toggle-password" title="Show password">👁️</button>
+                        </div>
+                    </div>
+                    <div class="auth-options">
+                        <label>
+                            <input type="checkbox" id="remember-me"> Remember me
                         </label>
-                        <span id="theme-label">Dark Mode</span>
+                        <a href="#" id="forgot-password">Forgot password?</a>
                     </div>
-                    <div class="collaboration-panel">
-                        <button id="collab-btn" class="collab-btn">Start Collaboration</button>
-                        <div id="collab-info" class="collab-info"></div>
-                        <input type="text" id="session-id-input" placeholder="Enter session ID" class="session-input">
-                        <button id="join-session-btn">Join Session</button>
-                    </div>
+                    <div class="form-error" id="login-error"></div>
+                    <button type="submit" class="btn primary btn-login">Log In</button>
+                </form>
+                <div class="auth-alternative">
+                    <p>Don't have an account? <a href="#" id="switch-to-register">Register</a></p>
+                    <p>or</p>
+                    <button type="button" class="btn secondary btn-guest">Continue as Guest</button>
                 </div>
             </div>
-            <div class="header-bottom">
-                <div class="package-manager">
-                    <input type="text" id="package-input" placeholder="Search PyPI packages...">
-                    <button id="install-btn">Install Package</button>
-                    <button id="browse-packages-btn">Browse Packages</button>
-                </div>
-                <div class="file-system-actions">
-                    <button id="file-system-btn">File System</button>
-                    <button id="env-manager-btn">Environments</button>
-                    <button id="examples-btn">Examples Gallery</button>
+
+            <!-- Registration Form -->
+            <div id="register-form" class="auth-form hidden">
+                <h2>Create Account</h2>
+                <form id="form-register">
+                    <div class="form-group">
+                        <label for="register-name">Full Name</label>
+                        <input type="text" id="register-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <div class="password-input">
+                            <input type="password" id="register-password" class="form-control" required
+                                   pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$"
+                                   title="Password must be at least 8 characters with at least one uppercase letter, one lowercase letter, and one number">
+                            <button type="button" class="toggle-password" title="Show password">👁️</button>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-meter">
+                                <div class="strength-meter-fill" id="strength-meter-fill"></div>
+                            </div>
+                            <div class="strength-text" id="strength-text">Password strength</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm">Confirm Password</label>
+                        <div class="password-input">
+                            <input type="password" id="register-confirm" class="form-control" required>
+                            <button type="button" class="toggle-password" title="Show password">👁️</button>
+                        </div>
+                    </div>
+                    <div class="form-error" id="register-error"></div>
+                    <button type="submit" class="btn primary">Create Account</button>
+                </form>
+                <div class="auth-alternative">
+                    <p>Already have an account? <a href="#" id="switch-to-login">Log In</a></p>
                 </div>
             </div>
-            <div class="header-tabs">
-                <div class="tab active" data-tab="editor">Editor</div>
-                <div class="tab" data-tab="testing">Unit Tests</div>
-                <div class="tab" data-tab="debugger">Debugger</div>
+
+            <!-- Password Reset Form -->
+            <div id="reset-form" class="auth-form hidden">
+                <h2>Reset Password</h2>
+                <p>Enter your email to receive a password reset link.</p>
+                <form id="form-reset">
+                    <div class="form-group">
+                        <label for="reset-email">Email</label>
+                        <input type="email" id="reset-email" class="form-control" required>
+                    </div>
+                    <div class="form-error" id="reset-error"></div>
+                    <button type="submit" class="btn primary">Send Reset Link</button>
+                </form>
+                <div class="auth-alternative">
+                    <p><a href="#" id="back-to-login">Back to Login</a></p>
+                </div>
+            </div>
+
+            <div class="auth-footer">
+                <p>© 2025 Metasploit Mastery Platform | <a href="#" data-resource="disclaimer">Ethical Use Policy</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="app">
+        <!-- Application Shell -->
+        <header id="main-header">
+            <div class="container">
+                <div class="logo">
+                    <h1>Metasploit Mastery</h1>
+                </div>
+                <nav id="main-nav" aria-label="Main Navigation">
+                    <ul>
+                        <li><a href="#" data-section="dashboard" class="active">Dashboard</a></li>
+                        <li><a href="#" data-section="modules">Learning Modules</a></li>
+                        <li><a href="#" data-section="labs">Practice Labs</a></li>
+                        <li><a href="#" data-section="resources">Resources</a></li>
+                        <li><a href="#" data-section="profile">Profile</a></li>
+                    </ul>
+                </nav>
+                <div id="user-controls">
+                    <button id="theme-toggle" aria-label="Toggle dark mode">
+                        <span class="icon">🌙</span>
+                    </button>
+                    <div id="user-profile">
+                        <span class="user-name">Guest User</span>
+                        <div class="user-avatar"></div>
+                    </div>
+                </div>
             </div>
         </header>
 
-        <main>
-            <div class="tab-content" id="editor-tab" style="display: flex;">
-                <div class="editor-container">
-                    <div class="editor-header">
-                        <h2>Python Code</h2>
-                        <div class="editor-actions">
-                            <select id="template-selector">
-                                <option value="">Select Template...</option>
-                                <option value="hello-world">Hello World</option>
-                                <option value="dom-manipulation">DOM Manipulation</option>
-                                <option value="numpy-example">NumPy Example</option>
-                                <option value="matplotlib-example">Matplotlib Example</option>
-                            </select>
-                            <button id="save-btn">Save</button>
-                            <button id="load-btn">Load</button>
-                            <button id="run-btn">Run Code</button>
-                        </div>
-                    </div>
-                    <!-- Replace textarea with div for CodeMirror -->
-                    <div id="code-editor"></div>
-                </div>
-
-                <div class="output-container">
-                    <div class="console-container">
-                        <h2>Console Output</h2>
-                        <div id="console" class="console"></div>
-                        <button id="clear-console-btn">Clear Console</button>
-                    </div>
-
-                    <div class="preview-container">
-                        <h2>Preview</h2>
-                        <iframe id="preview" sandbox="allow-scripts"></iframe>
-                    </div>
-                </div>
+        <main id="main-content">
+            <!-- Dynamic content will be loaded here -->
+            <div id="loader" aria-label="Loading content">
+                <div class="spinner"></div>
+                <p>Loading...</p>
             </div>
 
-            <div class="tab-content" id="testing-tab" style="display: none;">
-                <div class="testing-container">
-                    <div class="test-editor-container">
-                        <div class="editor-header">
-                            <h2>Unit Tests</h2>
-                            <div class="editor-actions">
-                                <select id="test-template-selector">
-                                    <option value="">Test Templates...</option>
-                                    <option value="unittest-basic">Basic unittest</option>
-                                    <option value="pytest-basic">Basic pytest</option>
-                                    <option value="unittest-example">Example unittest</option>
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="container">
+                    <h2>Your Learning Dashboard</h2>
+
+                    <div class="progress-overview">
+                        <div class="card">
+                            <h3>Learning Progress</h3>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0%</span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Current Tier</h3>
+                            <div class="tier-indicator">
+                                <span class="tier">Tier 0: Security Foundations</span>
+                                <p class="tier-description">Building prerequisite knowledge for Metasploit mastery</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recent-activity">
+                        <h3>Recent Activity</h3>
+                        <div class="activity-list empty">
+                            <p class="empty-state">No recent activity. Start learning to track your progress!</p>
+                        </div>
+                    </div>
+
+                    <div class="learning-path">
+                        <h3>Your Learning Path</h3>
+                        <div class="modules-preview">
+                            <!-- Module previews will be dynamically inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Modules Section - Content loaded dynamically -->
+            <section id="modules-section" class="content-section">
+                <div class="container">
+                    <h2>Learning Modules</h2>
+                    <div class="tier-navigator">
+                        <div class="tier-tabs">
+                            <button class="tier-tab active" data-tier="0">Tier 0: Security Foundations</button>
+                            <button class="tier-tab" data-tier="1">Tier 1: Metasploit Initiate</button>
+                            <button class="tier-tab" data-tier="2">Tier 2: Exploitation Practitioner</button>
+                            <button class="tier-tab" data-tier="3">Tier 3: Advanced Operator</button>
+                            <button class="tier-tab" data-tier="4">Tier 4: Security Architect</button>
+                        </div>
+                    </div>
+
+                    <div class="modules-grid">
+                        <!-- Modules will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Labs Section -->
+            <section id="labs-section" class="content-section">
+                <div class="container">
+                    <h2>Practice Labs</h2>
+                    <div class="labs-environment">
+                        <div class="terminal-container">
+                            <div class="terminal-header">
+                                <div class="terminal-buttons">
+                                    <span class="terminal-btn close"></span>
+                                    <span class="terminal-btn minimize"></span>
+                                    <span class="terminal-btn maximize"></span>
+                                </div>
+                                <div class="terminal-title">Terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-output"></div>
+                                <div class="terminal-input-line">
+                                    <span class="prompt">root@kali:~#</span>
+                                    <input type="text" class="terminal-input" aria-label="Terminal input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lab-controls">
+                            <div class="lab-selector">
+                                <h3>Select Lab Environment</h3>
+                                <select id="lab-environment" aria-label="Select lab environment">
+                                    <option value="" disabled selected>Select environment</option>
+                                    <option value="basic-recon">Basic Reconnaissance</option>
+                                    <option value="vuln-scan">Vulnerability Scanning</option>
+                                    <option value="exploit-basic">Basic Exploitation</option>
+                                    <option value="post-exploit">Post-Exploitation</option>
                                 </select>
-                                <button id="run-tests-btn">Run Tests</button>
                             </div>
-                        </div>
-                        <div id="test-editor"></div>
-                    </div>
-                    <div class="test-results-container">
-                        <h2>Test Results</h2>
-                        <div id="test-results" class="test-results">
-                            <div class="test-summary">
-                                <div class="test-stats">
-                                    <span id="tests-total">0</span> tests,
-                                    <span id="tests-passed" class="success">0</span> passed,
-                                    <span id="tests-failed" class="error">0</span> failed
-                                </div>
-                                <div class="test-progress">
-                                    <div id="test-progress-bar" class="test-progress-bar"></div>
-                                </div>
-                            </div>
-                            <div id="test-details" class="test-details"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="tab-content" id="debugger-tab" style="display: none;">
-                <div class="debugger-container">
-                    <div class="debug-editor-container">
-                        <div class="editor-header">
-                            <h2>Debug Python Code</h2>
-                            <div class="debugger-actions">
-                                <button id="debug-start-btn">Start</button>
-                                <button id="debug-step-btn" disabled>Step</button>
-                                <button id="debug-continue-btn" disabled>Continue</button>
-                                <button id="debug-stop-btn" disabled>Stop</button>
+                            <div class="lab-actions">
+                                <button id="start-lab" disabled>Start Lab</button>
+                                <button id="reset-lab" disabled>Reset Lab</button>
+                                <button id="hint" disabled>Get Hint</button>
                             </div>
-                        </div>
-                        <div id="debug-editor"></div>
-                    </div>
-                    <div class="debug-panel">
-                        <div class="debug-panel-header">
-                            <div class="tab-buttons">
-                                <button class="debug-tab-btn active" data-tab="variables">Variables</button>
-                                <button class="debug-tab-btn" data-tab="call-stack">Call Stack</button>
-                                <button class="debug-tab-btn" data-tab="breakpoints">Breakpoints</button>
-                            </div>
-                        </div>
-                        <div class="debug-panel-content">
-                            <div class="debug-panel-tab active" id="variables-tab">
-                                <div id="debug-variables" class="debug-variables"></div>
-                            </div>
-                            <div class="debug-panel-tab" id="call-stack-tab">
-                                <div id="debug-call-stack" class="debug-call-stack"></div>
-                            </div>
-                            <div class="debug-panel-tab" id="breakpoints-tab">
-                                <div id="debug-breakpoints" class="debug-breakpoints"></div>
+
+                            <div class="lab-objectives">
+                                <h3>Objectives</h3>
+                                <ul class="objectives-list">
+                                    <li class="empty-state">Select a lab to view objectives</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Resources Section -->
+            <section id="resources-section" class="content-section">
+                <div class="container">
+                    <h2>Resources</h2>
+                    <div class="resources-grid">
+                        <div class="resource-category">
+                            <h3>Documentation</h3>
+                            <ul class="resource-list">
+                                <li><a href="#" class="resource-link" data-resource="metasploit-docs">Metasploit Documentation</a></li>
+                                <li><a href="#" class="resource-link" data-resource="kali-docs">Kali Linux Documentation</a></li>
+                                <li><a href="#" class="resource-link" data-resource="command-ref">Command Reference</a></li>
+                                <li><a href="#" class="resource-link" data-resource="payload-ref">Payload Reference</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="resource-category">
+                            <h3>Cheat Sheets</h3>
+                            <ul class="resource-list">
+                                <li><a href="#" class="resource-link" data-resource="msf-commands">MSF Console Commands</a></li>
+                                <li><a href="#" class="resource-link" data-resource="recon-techniques">Reconnaissance Techniques</a></li>
+                                <li><a href="#" class="resource-link" data-resource="exploitation">Exploitation Workflow</a></li>
+                                <li><a href="#" class="resource-link" data-resource="post-exploitation">Post-Exploitation</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="resource-category">
+                            <h3>Legal & Ethical</h3>
+                            <ul class="resource-list">
+                                <li><a href="#" class="resource-link" data-resource="ethical-guidelines">Ethical Guidelines</a></li>
+                                <li><a href="#" class="resource-link" data-resource="legal-considerations">Legal Considerations</a></li>
+                                <li><a href="#" class="resource-link" data-resource="responsible-disclosure">Responsible Disclosure</a></li>
+                                <li><a href="#" class="resource-link" data-resource="authorization">Authorization Templates</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="resource-category">
+                            <h3>Tools & Downloads</h3>
+                            <ul class="resource-list">
+                                <li><a href="#" class="resource-link" data-resource="kali-download">Kali Linux ISO</a></li>
+                                <li><a href="#" class="resource-link" data-resource="vm-templates">VM Templates</a></li>
+                                <li><a href="#" class="resource-link" data-resource="config-scripts">Configuration Scripts</a></li>
+                                <li><a href="#" class="resource-link" data-resource="custom-modules">Custom Modules</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile-section" class="content-section">
+                <div class="container">
+                    <h2>User Profile</h2>
+                    <div class="profile-content">
+                        <div class="profile-card">
+                            <div class="profile-header">
+                                <div class="profile-avatar">
+                                    <div class="avatar-placeholder"></div>
+                                </div>
+                                <div class="profile-details">
+                                    <h3 class="profile-name">Guest User</h3>
+                                    <p class="profile-tier">Tier 0: Security Foundations</p>
+                                </div>
+                            </div>
+
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <span class="stat-value">0%</span>
+                                    <span class="stat-label">Overall Progress</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">0</span>
+                                    <span class="stat-label">Modules Completed</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">0</span>
+                                    <span class="stat-label">Labs Completed</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">0</span>
+                                    <span class="stat-label">Days Streak</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-settings">
+                            <h3>Settings</h3>
+                            <form id="settings-form">
+                                <div class="form-group">
+                                    <label for="display-name">Display Name</label>
+                                    <input type="text" id="display-name" value="Guest User">
+                                </div>
+                                <div class="form-group">
+                                    <label for="theme-preference">Theme</label>
+                                    <select id="theme-preference">
+                                        <option value="system">System Default</option>
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="terminal">Terminal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="experience-level">Experience Level</label>
+                                    <select id="experience-level">
+                                        <option value="beginner">Beginner</option>
+                                        <option value="intermediate">Intermediate</option>
+                                        <option value="advanced">Advanced</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Preferences</label>
+                                    <div class="checkbox-group">
+                                        <label>
+                                            <input type="checkbox" id="save-progress"> Save progress locally
+                                        </label>
+                                        <label>
+                                            <input type="checkbox" id="terminal-hints"> Show terminal hints
+                                        </label>
+                                        <label>
+                                            <input type="checkbox" id="advanced-features"> Enable advanced features
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn primary">Save Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Module Content View (for when a specific module is selected) -->
+            <section id="module-content-section" class="content-section">
+                <div class="container">
+                    <div class="module-navigation">
+                        <button class="back-button">← Back to Modules</button>
+                        <div class="module-progress">
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="module-container">
+                        <aside class="module-sidebar">
+                            <h3 class="module-title">Module Title</h3>
+                            <ul class="module-lessons">
+                                <!-- Lesson links will be loaded here -->
+                            </ul>
+                        </aside>
+
+                        <div class="module-content">
+                            <!-- Lesson content will be loaded here -->
+                            <div class="content-placeholder">
+                                <p>Select a lesson to begin</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Resource Content View (for when a specific resource is selected) -->
+            <section id="resource-content-section" class="content-section">
+                <div class="container">
+                    <div class="resource-navigation">
+                        <button class="back-button">← Back to Resources</button>
+                    </div>
+
+                    <div id="resource-content">
+                        <!-- Resource content will be loaded here -->
+                    </div>
+                </div>
+            </section>
         </main>
 
-        <!-- Save/Load Modal -->
-        <div id="snippet-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h2 id="modal-title">Save Code Snippet</h2>
-                <div id="modal-save-section">
-                    <input type="text" id="snippet-name" placeholder="Snippet name">
-                    <textarea id="snippet-description" placeholder="Description (optional)"></textarea>
-                    <button id="save-snippet-btn">Save</button>
-                </div>
-                <div id="modal-load-section">
-                    <div id="snippet-list" class="snippet-list"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- File System Modal -->
-        <div id="file-system-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h2>Python File System</h2>
-                <div class="file-system-container">
-                    <div class="file-system-sidebar">
-                        <div class="file-actions">
-                            <button id="new-file-btn">New File</button>
-                            <button id="new-folder-btn">New Folder</button>
-                        </div>
-                        <div id="file-tree" class="file-tree"></div>
+        <footer id="main-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="copyright">
+                        <p>© 2025 Metasploit Mastery Platform. For educational purposes only.</p>
                     </div>
-                    <div class="file-content">
-                        <div class="file-header">
-                            <input type="text" id="file-name" placeholder="Filename (e.g., module.py)">
-                            <div class="file-buttons">
-                                <button id="save-file-btn">Save</button>
-                                <button id="delete-file-btn">Delete</button>
-                            </div>
-                        </div>
-                        <div id="file-editor-container"></div>
+                    <div class="legal-links">
+                        <a href="#" data-resource="terms">Terms of Use</a>
+                        <a href="#" data-resource="privacy">Privacy Policy</a>
+                        <a href="#" data-resource="disclaimer">Ethical Disclaimer</a>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Package Browser Modal -->
-        <div id="package-browser-modal" class="modal">
-            <div class="modal-content package-browser-content">
-                <span class="close-modal">&times;</span>
-                <h2>Package Browser</h2>
-                <div class="package-browser-container">
-                    <div class="package-categories">
-                        <ul>
-                            <li data-category="data-science" class="active">Data Science</li>
-                            <li data-category="web-frameworks">Web Frameworks</li>
-                            <li data-category="utils">Utilities</li>
-                            <li data-category="visualization">Visualization</li>
-                            <li data-category="ml">Machine Learning</li>
-                            <li data-category="popular">Popular Packages</li>
-                        </ul>
-                    </div>
-                    <div class="package-list-container">
-                        <div id="package-browser-list" class="package-browser-list"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Environment Manager Modal -->
-        <div id="env-manager-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h2>Python Environment Manager</h2>
-                <div class="env-manager-container">
-                    <div class="env-list-container">
-                        <div class="env-list-header">
-                            <h3>Environments</h3>
-                            <button id="new-env-btn">New Environment</button>
-                        </div>
-                        <div id="env-list" class="env-list"></div>
-                    </div>
-                    <div class="env-details-container">
-                        <div class="env-header">
-                            <input type="text" id="env-name" placeholder="Environment name">
-                            <div class="env-buttons">
-                                <button id="save-env-btn">Save</button>
-                                <button id="delete-env-btn">Delete</button>
-                                <button id="activate-env-btn">Activate</button>
-                            </div>
-                        </div>
-                        <h3>Packages</h3>
-                        <div class="env-packages">
-                            <div class="add-package">
-                                <input type="text" id="new-package-name" placeholder="Package name">
-                                <input type="text" id="new-package-version" placeholder="Version (optional)">
-                                <button id="add-package-btn">Add</button>
-                            </div>
-                            <div id="env-packages-list" class="env-packages-list"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Examples Gallery Modal -->
-        <div id="examples-modal" class="modal">
-            <div class="modal-content examples-content">
-                <span class="close-modal">&times;</span>
-                <h2>Python Examples Gallery</h2>
-                <div class="examples-container">
-                    <div class="examples-categories">
-                        <ul>
-                            <li data-category="basics" class="active">Basics</li>
-                            <li data-category="data-visualization">Data Visualization</li>
-                            <li data-category="web">Web Development</li>
-                            <li data-category="machine-learning">Machine Learning</li>
-                            <li data-category="algorithms">Algorithms</li>
-                            <li data-category="gui">GUI</li>
-                        </ul>
-                    </div>
-                    <div class="examples-list-container">
-                        <div id="examples-list" class="examples-list"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <footer>
-            <div class="features">
-                <div class="feature">
-                    <h3>Full WebAssembly Python 3.10</h3>
-                    <p>Complete Python runtime via Pyodide</p>
-                </div>
-                <div class="feature">
-                    <h3>Package Management</h3>
-                    <p>Install any PyPI package with micropip</p>
-                </div>
-                <div class="feature">
-                    <h3>DOM Manipulation</h3>
-                    <p>Access and modify DOM through Python-JS interop</p>
-                </div>
-            </div>
-            <div class="connection-status">
-                <span id="connection-indicator" class="disconnected"></span>
-                <span id="connection-text">Not connected</span>
             </div>
         </footer>
-    </div>
 
-    <script src="script.js"></script>
+        <!-- Modal Components -->
+        <div id="modal-container" class="hidden">
+            <div class="modal-backdrop"></div>
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">Modal Title</h3>
+                    <button class="modal-close" aria-label="Close modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Modal content will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn secondary modal-cancel">Cancel</button>
+                    <button class="btn primary modal-confirm">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div id="notification-container"></div>
+    </div>
 </body>
 </html>
