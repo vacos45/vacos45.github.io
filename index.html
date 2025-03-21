@@ -1,20 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real Python Execution</title>
     <link rel="stylesheet" href="style.css">
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/eclipse.min.css">
+    <!-- Pyodide -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <!-- CodeMirror JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+    <!-- Socket.io for collaborative coding -->
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <!-- UUID generator -->
+    <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuidv4.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Real Python Execution</h1>
-            <div class="package-manager">
-                <input type="text" id="package-input" placeholder="Search PyPI packages...">
-                <button id="install-btn">Install Package</button>
-                <div class="package-list" id="package-results"></div>
+            <div class="header-top">
+                <h1>Real Python Execution</h1>
+                <div class="global-actions">
+                    <div class="theme-toggle">
+                        <label class="switch">
+                            <input type="checkbox" id="theme-switch">
+                            <span class="slider round"></span>
+                        </label>
+                        <span id="theme-label">Dark Mode</span>
+                    </div>
+                    <div class="collaboration-panel">
+                        <button id="collab-btn" class="collab-btn">Start Collaboration</button>
+                        <div id="collab-info" class="collab-info"></div>
+                        <input type="text" id="session-id-input" placeholder="Enter session ID" class="session-input">
+                        <button id="join-session-btn">Join Session</button>
+                    </div>
+                </div>
+            </div>
+            <div class="header-bottom">
+                <div class="package-manager">
+                    <input type="text" id="package-input" placeholder="Search PyPI packages...">
+                    <button id="install-btn">Install Package</button>
+                    <button id="browse-packages-btn">Browse Packages</button>
+                </div>
+                <div class="file-system-actions">
+                    <button id="file-system-btn">File System</button>
+                </div>
             </div>
         </header>
 
@@ -22,16 +58,21 @@
             <div class="editor-container">
                 <div class="editor-header">
                     <h2>Python Code</h2>
-                    <button id="run-btn">Run Code</button>
+                    <div class="editor-actions">
+                        <select id="template-selector">
+                            <option value="">Select Template...</option>
+                            <option value="hello-world">Hello World</option>
+                            <option value="dom-manipulation">DOM Manipulation</option>
+                            <option value="numpy-example">NumPy Example</option>
+                            <option value="matplotlib-example">Matplotlib Example</option>
+                        </select>
+                        <button id="save-btn">Save</button>
+                        <button id="load-btn">Load</button>
+                        <button id="run-btn">Run Code</button>
+                    </div>
                 </div>
-                <textarea id="code-editor" placeholder="Write your Python code here...
-# Example:
-# Access DOM elements
-document.getElementById('preview').contentDocument.body.innerHTML = '<h1>Hello from Python!</h1>'
-
-# Install packages
-# import micropip
-# await micropip.install('numpy')"></textarea>
+                <!-- Replace textarea with div for CodeMirror -->
+                <div id="code-editor"></div>
             </div>
 
             <div class="output-container">
@@ -48,6 +89,72 @@ document.getElementById('preview').contentDocument.body.innerHTML = '<h1>Hello f
             </div>
         </main>
 
+        <!-- Save/Load Modal -->
+        <div id="snippet-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2 id="modal-title">Save Code Snippet</h2>
+                <div id="modal-save-section">
+                    <input type="text" id="snippet-name" placeholder="Snippet name">
+                    <textarea id="snippet-description" placeholder="Description (optional)"></textarea>
+                    <button id="save-snippet-btn">Save</button>
+                </div>
+                <div id="modal-load-section">
+                    <div id="snippet-list" class="snippet-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File System Modal -->
+        <div id="file-system-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Python File System</h2>
+                <div class="file-system-container">
+                    <div class="file-system-sidebar">
+                        <div class="file-actions">
+                            <button id="new-file-btn">New File</button>
+                            <button id="new-folder-btn">New Folder</button>
+                        </div>
+                        <div id="file-tree" class="file-tree"></div>
+                    </div>
+                    <div class="file-content">
+                        <div class="file-header">
+                            <input type="text" id="file-name" placeholder="Filename (e.g., module.py)">
+                            <div class="file-buttons">
+                                <button id="save-file-btn">Save</button>
+                                <button id="delete-file-btn">Delete</button>
+                            </div>
+                        </div>
+                        <div id="file-editor-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Package Browser Modal -->
+        <div id="package-browser-modal" class="modal">
+            <div class="modal-content package-browser-content">
+                <span class="close-modal">&times;</span>
+                <h2>Package Browser</h2>
+                <div class="package-browser-container">
+                    <div class="package-categories">
+                        <ul>
+                            <li data-category="data-science" class="active">Data Science</li>
+                            <li data-category="web-frameworks">Web Frameworks</li>
+                            <li data-category="utils">Utilities</li>
+                            <li data-category="visualization">Visualization</li>
+                            <li data-category="ml">Machine Learning</li>
+                            <li data-category="popular">Popular Packages</li>
+                        </ul>
+                    </div>
+                    <div class="package-list-container">
+                        <div id="package-browser-list" class="package-browser-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <footer>
             <div class="features">
                 <div class="feature">
@@ -62,6 +169,10 @@ document.getElementById('preview').contentDocument.body.innerHTML = '<h1>Hello f
                     <h3>DOM Manipulation</h3>
                     <p>Access and modify DOM through Python-JS interop</p>
                 </div>
+            </div>
+            <div class="connection-status">
+                <span id="connection-indicator" class="disconnected"></span>
+                <span id="connection-text">Not connected</span>
             </div>
         </footer>
     </div>
