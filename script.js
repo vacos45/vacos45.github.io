@@ -1,1393 +1,814 @@
-// DOM Elements
-const codeEditorElement = document.getElementById('code-editor');
-const runButton = document.getElementById('run-btn');
-const consoleOutput = document.getElementById('console');
-const clearConsoleButton = document.getElementById('clear-console-btn');
-const packageInput = document.getElementById('package-input');
-const installButton = document.getElementById('install-btn');
-const packageResults = document.getElementById('package-results');
-const previewFrame = document.getElementById('preview');
-const saveButton = document.getElementById('save-btn');
-const loadButton = document.getElementById('load-btn');
-const snippetModal = document.getElementById('snippet-modal');
-const closeModal = document.querySelector('.close-modal');
-const modalTitle = document.getElementById('modal-title');
-const modalSaveSection = document.getElementById('modal-save-section');
-const modalLoadSection = document.getElementById('modal-load-section');
-const snippetName = document.getElementById('snippet-name');
-const snippetDescription = document.getElementById('snippet-description');
-const saveSnippetButton = document.getElementById('save-snippet-btn');
-const snippetList = document.getElementById('snippet-list');
-const templateSelector = document.getElementById('template-selector');
-const themeSwitch = document.getElementById('theme-switch');
-const themeLabel = document.getElementById('theme-label');
-const fileSystemBtn = document.getElementById('file-system-btn');
-const fileSystemModal = document.getElementById('file-system-modal');
-const browsePackagesBtn = document.getElementById('browse-packages-btn');
-const packageBrowserModal = document.getElementById('package-browser-modal');
-const collabBtn = document.getElementById('collab-btn');
-const sessionIdInput = document.getElementById('session-id-input');
-const joinSessionBtn = document.getElementById('join-session-btn');
-const collabInfo = document.getElementById('collab-info');
-const connectionIndicator = document.getElementById('connection-indicator');
-const connectionText = document.getElementById('connection-text');
-const fileTree = document.getElementById('file-tree');
-const fileNameInput = document.getElementById('file-name');
-const newFileBtn = document.getElementById('new-file-btn');
-const newFolderBtn = document.getElementById('new-folder-btn');
-const saveFileBtn = document.getElementById('save-file-btn');
-const deleteFileBtn = document.getElementById('delete-file-btn');
-const fileEditorContainer = document.getElementById('file-editor-container');
+/**
+ * Create a module card element
+ * @param {Object} module - Module data
+ * @returns {HTMLElement} Module card element
+ */
+function createModuleCard(module) {
+    const card = document.createElement('div');
+    card.className = 'module-card';
 
-// Theme settings
-let currentTheme = localStorage.getItem('theme') || 'light';
-let currentEditorTheme = currentTheme === 'dark' ? 'dracula' : 'eclipse';
-
-// File System
-let fileSystem = JSON.parse(localStorage.getItem('pythonFileSystem') || '{"root": {"type": "folder", "children": {}}}');
-let currentFilePath = null;
-let fileEditor = null;
-
-// Package Browser Categories
-const packageCategories = {
-    'data-science': [
-        { name: 'numpy', description: 'Fundamental package for scientific computing', version: '1.24.3' },
-        { name: 'pandas', description: 'Data analysis and manipulation library', version: '2.0.3' },
-        { name: 'scipy', description: 'Scientific computation library', version: '1.11.2' },
-        { name: 'statsmodels', description: 'Statistical modeling and econometrics', version: '0.14.0' },
-        { name: 'scikit-learn', description: 'Machine learning library', version: '1.3.0' }
-    ],
-    'web-frameworks': [
-        { name: 'flask', description: 'Lightweight WSGI web application framework', version: '2.3.3' },
-        { name: 'django', description: 'High-level web framework', version: '4.2.4' },
-        { name: 'fastapi', description: 'Modern, fast web framework for APIs', version: '0.101.1' },
-        { name: 'tornado', description: 'Asynchronous networking library', version: '6.3.3' }
-    ],
-    'utils': [
-        { name: 'requests', description: 'HTTP library for Python', version: '2.31.0' },
-        { name: 'pyyaml', description: 'YAML parser and emitter', version: '6.0.1' },
-        { name: 'python-dateutil', description: 'Extensions to the standard datetime module', version: '2.8.2' },
-        { name: 'pytz', description: 'World timezone definitions', version: '2023.3' },
-        { name: 'tqdm', description: 'Fast, extensible progress bar', version: '4.66.1' }
-    ],
-    'visualization': [
-        { name: 'matplotlib', description: 'Plotting library', version: '3.7.2' },
-        { name: 'seaborn', description: 'Statistical data visualization', version: '0.12.2' },
-        { name: 'plotly', description: 'Interactive visualization library', version: '5.16.1' },
-        { name: 'bokeh', description: 'Interactive visualization library for modern web browsers', version: '3.2.2' }
-    ],
-    'ml': [
-        { name: 'tensorflow', description: 'Open source platform for machine learning', version: '2.13.0' },
-        { name: 'pytorch', description: 'Deep learning framework', version: '2.0.1' },
-        { name: 'xgboost', description: 'Gradient boosting framework', version: '1.7.6' },
-        { name: 'lightgbm', description: 'Gradient boosting framework', version: '4.0.0' },
-        { name: 'keras', description: 'Deep learning API', version: '2.13.1' }
-    ],
-    'popular': [
-        { name: 'numpy', description: 'Fundamental package for scientific computing', version: '1.24.3' },
-        { name: 'pandas', description: 'Data analysis and manipulation library', version: '2.0.3' },
-        { name: 'matplotlib', description: 'Plotting library', version: '3.7.2' },
-        { name: 'requests', description: 'HTTP library for Python', version: '2.31.0' },
-        { name: 'scikit-learn', description: 'Machine learning library', version: '1.3.0' },
-        { name: 'tensorflow', description: 'Open source platform for machine learning', version: '2.13.0' },
-        { name: 'flask', description: 'Lightweight WSGI web application framework', version: '2.3.3' },
-        { name: 'django', description: 'High-level web framework', version: '4.2.4' }
-    ]
-};
-
-// Collaborative Coding Setup
-let socket = null;
-let sessionId = null;
-let isCollaborating = false;
-let userRole = null;
-let collaborators = new Set();
-
-// Initialize CodeMirror
-const codeEditor = CodeMirror(codeEditorElement, {
-    mode: "python",
-    theme: currentEditorTheme,
-    lineNumbers: true,
-    indentUnit: 4,
-    tabSize: 4,
-    indentWithTabs: false,
-    smartIndent: true,
-    lineWrapping: true,
-    matchBrackets: true,
-    autoCloseBrackets: true,
-    extraKeys: {
-        "Tab": function(cm) {
-            if (cm.somethingSelected()) {
-                cm.indentSelection("add");
-            } else {
-                cm.replaceSelection("    ", "end", "+input");
-            }
-        }
-    }
-});
-
-// Apply saved theme on page load
-document.documentElement.setAttribute('data-theme', currentTheme);
-themeSwitch.checked = (currentTheme === 'dark');
-updateThemeLabel();
-
-// Initialize preview iframe content
-initializePreview();
-
-let pyodide = null;
-let micropip = null;
-let pyodideLoading = false;
-let installedPackages = new Set();
-
-// Code templates
-const codeTemplates = {
-    'hello-world': `# Simple Hello World
-print("Hello, World!")
-
-# Using Python's f-strings
-name = "Python WebAssembly"
-print(f"Hello from {name}!")`,
-
-    'dom-manipulation': `# DOM Manipulation Example
-# Access and modify the preview iframe content
-
-# Get the document from the preview iframe
-doc = document.getElementById('preview').contentDocument
-
-# Clear the current content
-doc.body.innerHTML = ""
-
-# Create some elements
-h1 = doc.createElement('h1')
-h1.textContent = "Created with Python!"
-h1.style.color = "#2d68c4"
-
-p = doc.createElement('p')
-p.textContent = "This content was generated using Python code running in WebAssembly."
-p.style.marginTop = "20px"
-
-button = doc.createElement('button')
-button.textContent = "Click Me!"
-button.style.padding = "10px 20px"
-button.style.backgroundColor = "#4CAF50"
-button.style.color = "white"
-button.style.border = "none"
-button.style.borderRadius = "4px"
-button.style.marginTop = "20px"
-button.style.cursor = "pointer"
-
-# Append elements to the document
-doc.body.appendChild(h1)
-doc.body.appendChild(p)
-doc.body.appendChild(button)
-
-print("DOM elements created successfully!")`,
-
-    'numpy-example': `# NumPy Example
-# First, install numpy if not already installed
-import micropip
-try:
-    import numpy as np
-    print("NumPy is already installed!")
-except ImportError:
-    print("Installing NumPy...")
-    await micropip.install('numpy')
-    import numpy as np
-    print("NumPy installed successfully!")
-
-# Create arrays
-a = np.array([1, 2, 3, 4, 5])
-b = np.array([5, 4, 3, 2, 1])
-
-# Operations
-print("Array a:", a)
-print("Array b:", b)
-print("Sum:", a + b)
-print("Difference:", a - b)
-print("Product:", a * b)
-print("Mean of a:", np.mean(a))
-print("Standard deviation of a:", np.std(a))
-
-# Create a matrix
-matrix = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-print("Matrix:\\n", matrix)
-print("Matrix transpose:\\n", matrix.T)
-print("Matrix determinant:", np.linalg.det(matrix))
-
-print("NumPy computation completed!")`,
-
-    'matplotlib-example': `# Matplotlib Example
-# First, install matplotlib if not already installed
-import micropip
-import io
-import base64
-from js import document
-
-try:
-    import matplotlib
-    import matplotlib.pyplot as plt
-    print("Matplotlib is already installed!")
-except ImportError:
-    print("Installing matplotlib...")
-    await micropip.install('matplotlib')
-    import matplotlib
-    matplotlib.use('module://matplotlib.backends.html5_canvas_backend')
-    import matplotlib.pyplot as plt
-    print("Matplotlib installed successfully!")
-
-# Create a figure
-plt.figure(figsize=(8, 6))
-
-# Create some data
-import numpy as np
-x = np.linspace(0, 10, 100)
-y1 = np.sin(x)
-y2 = np.cos(x)
-
-# Plot data
-plt.plot(x, y1, 'b-', label='sin(x)')
-plt.plot(x, y2, 'r-', label='cos(x)')
-plt.grid(True)
-plt.legend()
-plt.title('Sine and Cosine Functions')
-plt.xlabel('x')
-plt.ylabel('y')
-
-# Display the plot in the preview
-# Save the figure to a BytesIO object
-buffer = io.BytesIO()
-plt.savefig(buffer, format='png')
-buffer.seek(0)
-
-# Convert to base64
-img_str = base64.b64encode(buffer.read()).decode('utf-8')
-
-# Get the document from the preview iframe
-doc = document.getElementById('preview').contentDocument
-
-# Display the image
-doc.body.innerHTML = f'<img src="data:image/png;base64,{img_str}" width="100%">'
-
-print("Plot generated and displayed in the preview!")
-`
-};
-
-// Initialize the preview iframe with basic HTML
-function initializePreview() {
-    const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-    previewDoc.open();
-    previewDoc.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body {
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    margin: 20px;
-                    color: #333;
-                }
-            </style>
-        </head>
-        <body>
-            <div id="output">Python output will appear here</div>
-        </body>
-        </html>
-    `);
-    previewDoc.close();
-}
-
-// Toggle theme function
-function toggleTheme() {
-    currentTheme = themeSwitch.checked ? 'dark' : 'light';
-    currentEditorTheme = currentTheme === 'dark' ? 'dracula' : 'eclipse';
-
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    codeEditor.setOption('theme', currentEditorTheme);
-
-    if (fileEditor) {
-        fileEditor.setOption('theme', currentEditorTheme);
+    if (module.completed) {
+        card.classList.add('completed');
     }
 
-    localStorage.setItem('theme', currentTheme);
-    updateThemeLabel();
-}
-
-// Update theme label
-function updateThemeLabel() {
-    themeLabel.textContent = currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
-}
-
-// File System Functions
-function initializeFileSystem() {
-    if (!fileEditor) {
-        // Initialize file editor
-        fileEditor = CodeMirror(fileEditorContainer, {
-            mode: "python",
-            theme: currentEditorTheme,
-            lineNumbers: true,
-            indentUnit: 4,
-            tabSize: 4,
-            indentWithTabs: false,
-            smartIndent: true,
-            lineWrapping: true,
-            matchBrackets: true,
-            autoCloseBrackets: true
-        });
+    if (module.locked) {
+        card.classList.add('locked');
     }
 
-    renderFileTree();
-
-    // Hide file buttons initially
-    deleteFileBtn.style.display = 'none';
-    fileNameInput.value = '';
-    fileEditor.setValue('');
-}
-
-function renderFileTree() {
-    fileTree.innerHTML = '';
-    renderFolder(fileSystem.root, 'root', fileTree);
-}
-
-function renderFolder(folder, path, parentElement) {
-    const folderEntries = Object.entries(folder.children);
-
-    // Sort entries - folders first, then files
-    folderEntries.sort((a, b) => {
-        if (a[1].type === 'folder' && b[1].type !== 'folder') return -1;
-        if (a[1].type !== 'folder' && b[1].type === 'folder') return 1;
-        return a[0].localeCompare(b[0]);
-    });
-
-    folderEntries.forEach(([name, item]) => {
-        const itemPath = path === 'root' ? name : `${path}/${name}`;
-        const itemElement = document.createElement('div');
-
-        if (item.type === 'folder') {
-            itemElement.classList.add('file-tree-item', 'file-folder');
-            itemElement.innerHTML = `<span>📁 ${name}</span>`;
-
-            const folderContents = document.createElement('div');
-            folderContents.classList.add('folder-contents');
-
-            renderFolder(item, itemPath, folderContents);
-
-            itemElement.addEventListener('click', (e) => {
-                e.stopPropagation();
-                folderContents.style.display = folderContents.style.display === 'none' ? 'block' : 'none';
-            });
-
-            itemElement.appendChild(folderContents);
-        } else {
-            itemElement.classList.add('file-tree-item', 'file-python');
-            itemElement.innerHTML = `<span>📄 ${name}</span>`;
-
-            itemElement.addEventListener('click', (e) => {
-                e.stopPropagation();
-                openFile(itemPath);
-            });
-        }
-
-        parentElement.appendChild(itemElement);
-    });
-}
-
-function createFile(name, content = '', parentPath = 'root') {
-    if (!name.trim()) return false;
-
-    // Add .py extension if not provided
-    if (!name.endsWith('.py')) {
-        name = `${name}.py`;
-    }
-
-    const pathParts = parentPath.split('/');
-    let current = fileSystem;
-
-    // Navigate to the parent folder
-    for (const part of pathParts) {
-        if (part === 'root') {
-            current = current.root;
-        } else {
-            if (!current.children[part] || current.children[part].type !== 'folder') {
-                return false;
-            }
-            current = current.children[part];
-        }
-    }
-
-    // Check if file already exists
-    if (current.children[name]) {
-        return false;
-    }
-
-    // Create the file
-    current.children[name] = {
-        type: 'file',
-        content: content
-    };
-
-    // Save to localStorage
-    saveFileSystem();
-
-    return true;
-}
-
-function createFolder(name, parentPath = 'root') {
-    if (!name.trim()) return false;
-
-    const pathParts = parentPath.split('/');
-    let current = fileSystem;
-
-    // Navigate to the parent folder
-    for (const part of pathParts) {
-        if (part === 'root') {
-            current = current.root;
-        } else {
-            if (!current.children[part] || current.children[part].type !== 'folder') {
-                return false;
-            }
-            current = current.children[part];
-        }
-    }
-
-    // Check if folder already exists
-    if (current.children[name]) {
-        return false;
-    }
-
-    // Create the folder
-    current.children[name] = {
-        type: 'folder',
-        children: {}
-    };
-
-    // Save to localStorage
-    saveFileSystem();
-
-    return true;
-}
-
-function openFile(path) {
-    const pathParts = path.split('/');
-    const fileName = pathParts.pop();
-    const folderPath = pathParts.join('/') || 'root';
-
-    let current = fileSystem;
-
-    // Navigate to the parent folder
-    for (const part of pathParts) {
-        if (part === 'root') {
-            current = current.root;
-        } else {
-            if (!current.children[part] || current.children[part].type !== 'folder') {
-                return false;
-            }
-            current = current.children[part];
-        }
-    }
-
-    // Check if file exists
-    if (!current.children[fileName] || current.children[fileName].type !== 'file') {
-        return false;
-    }
-
-    // Set current file path and load content
-    currentFilePath = path;
-    fileNameInput.value = fileName;
-    fileEditor.setValue(current.children[fileName].content);
-
-    // Show delete button
-    deleteFileBtn.style.display = 'block';
-
-    // Add active class to selected file
-    document.querySelectorAll('.file-tree-item').forEach(item => {
-        item.classList.remove('selected');
-    });
-
-    // Highlight the selected file
-    Array.from(document.querySelectorAll('.file-tree-item')).find(
-        item => item.textContent.includes(fileName)
-    )?.classList.add('selected');
-
-    return true;
-}
-
-function saveFile() {
-    if (!fileNameInput.value.trim()) {
-        alert('Please enter a file name');
-        return;
-    }
-
-    const content = fileEditor.getValue();
-
-    if (currentFilePath) {
-        // Update existing file
-        const pathParts = currentFilePath.split('/');
-        const fileName = pathParts.pop();
-        let current = fileSystem;
-
-        // Navigate to the parent folder
-        for (const part of pathParts) {
-            if (part === 'root') {
-                current = current.root;
-            } else {
-                current = current.children[part];
-            }
-        }
-
-        // If the filename has changed, create a new file and delete the old one
-        if (fileName !== fileNameInput.value) {
-            // Create new file
-            const newName = fileNameInput.value;
-            const newFileName = newName.endsWith('.py') ? newName : `${newName}.py`;
-            const folderPath = pathParts.join('/') || 'root';
-
-            if (createFile(newFileName, content, folderPath)) {
-                // Delete old file
-                delete current.children[fileName];
-                currentFilePath = folderPath === 'root' ? newFileName : `${folderPath}/${newFileName}`;
-
-                // Save to localStorage
-                saveFileSystem();
-
-                // Refresh file tree
-                renderFileTree();
-
-                logToConsole(`Renamed file to ${newFileName} and saved`);
-            } else {
-                alert(`Failed to rename file. File "${newFileName}" may already exist.`);
-            }
-        } else {
-            // Update existing file
-            current.children[fileName].content = content;
-
-            // Save to localStorage
-            saveFileSystem();
-
-            logToConsole(`File "${fileName}" saved`);
-        }
-    } else {
-        // Create new file
-        const name = fileNameInput.value;
-        const fileName = name.endsWith('.py') ? name : `${name}.py`;
-
-        if (createFile(fileName, content)) {
-            currentFilePath = fileName;
-
-            // Refresh file tree
-            renderFileTree();
-
-            logToConsole(`File "${fileName}" created`);
-        } else {
-            alert(`Failed to create file. File "${fileName}" may already exist.`);
-        }
-    }
-}
-
-function deleteFile() {
-    if (!currentFilePath) return;
-
-    if (!confirm('Are you sure you want to delete this file?')) return;
-
-    const pathParts = currentFilePath.split('/');
-    const fileName = pathParts.pop();
-    let current = fileSystem;
-
-    // Navigate to the parent folder
-    for (const part of pathParts) {
-        if (part === 'root') {
-            current = current.root;
-        } else {
-            current = current.children[part];
-        }
-    }
-
-    // Delete the file
-    delete current.children[fileName];
-
-    // Save to localStorage
-    saveFileSystem();
-
-    // Reset file editor
-    currentFilePath = null;
-    fileNameInput.value = '';
-    fileEditor.setValue('');
-    deleteFileBtn.style.display = 'none';
-
-    // Refresh file tree
-    renderFileTree();
-
-    logToConsole(`File "${fileName}" deleted`);
-}
-
-function createNewFile() {
-    currentFilePath = null;
-    fileNameInput.value = '';
-    fileEditor.setValue('');
-    deleteFileBtn.style.display = 'none';
-
-    // Remove selected class from all items
-    document.querySelectorAll('.file-tree-item').forEach(item => {
-        item.classList.remove('selected');
-    });
-}
-
-function createNewFolder() {
-    const folderName = prompt('Enter folder name:');
-
-    if (!folderName || !folderName.trim()) return;
-
-    if (createFolder(folderName)) {
-        renderFileTree();
-        logToConsole(`Folder "${folderName}" created`);
-    } else {
-        alert(`Failed to create folder. Folder "${folderName}" may already exist.`);
-    }
-}
-
-function saveFileSystem() {
-    localStorage.setItem('pythonFileSystem', JSON.stringify(fileSystem));
-}
-
-function importFileToMain() {
-    if (!currentFilePath) {
-        alert('Please open a file first');
-        return;
-    }
-
-    const content = fileEditor.getValue();
-    codeEditor.setValue(content);
-    closeFileSystemModal();
-    logToConsole(`Imported file "${currentFilePath}" to main editor`);
-}
-
-function showFileSystemModal() {
-    initializeFileSystem();
-    fileSystemModal.style.display = 'block';
-}
-
-function closeFileSystemModal() {
-    fileSystemModal.style.display = 'none';
-}
-
-// Python Module Import System
-function setupPythonImports() {
-    if (!pyodide) return;
-
-    // Create a virtual filesystem for Python imports
-    const pythonFileSystem = {};
-
-    function traverseFileSystem(folder, path) {
-        Object.entries(folder.children).forEach(([name, item]) => {
-            const itemPath = path ? `${path}/${name}` : name;
-
-            if (item.type === 'file' && name.endsWith('.py')) {
-                pythonFileSystem[itemPath] = item.content;
-            } else if (item.type === 'folder') {
-                traverseFileSystem(item, itemPath);
-            }
-        });
-    }
-
-    traverseFileSystem(fileSystem.root, '');
-
-    // Register custom import handler
-    pyodide.runPython(`
-        import sys
-        import importlib.machinery
-        from pathlib import Path
-
-        class CustomImporter:
-            @staticmethod
-            def find_spec(name, path, target=None):
-                # Check if it's a module in our virtual filesystem
-                module_path = f"{name.replace('.', '/')}.py"
-                if module_path in js.pythonFileSystem:
-                    return importlib.machinery.ModuleSpec(
-                        name=name,
-                        loader=CustomImporter,
-                        origin=module_path
-                    )
-                return None
-
-            @staticmethod
-            def create_module(spec):
-                return None  # Use default module creation
-
-            @staticmethod
-            def exec_module(module):
-                module_path = module.__spec__.origin
-                code = js.pythonFileSystem[module_path]
-                exec(code, module.__dict__)
-
-        # Add the custom importer to sys.meta_path
-        sys.meta_path.insert(0, CustomImporter)
-    `);
-
-    // Make the filesystem available to Python
-    pyodide.globals.set('pythonFileSystem', pythonFileSystem);
-
-    logToConsole('Python module import system initialized');
-}
-
-// Load Pyodide
-async function loadPyodide() {
-    if (pyodide !== null) return pyodide;
-    if (pyodideLoading) {
-        await new Promise(resolve => {
-            const checkInterval = setInterval(() => {
-                if (pyodide !== null) {
-                    clearInterval(checkInterval);
-                    resolve();
-                }
-            }, 100);
-        });
-        return pyodide;
-    }
-
-    pyodideLoading = true;
-    logToConsole('Loading Python environment (Pyodide)...');
-
-    try {
-        pyodide = await loadPyodide({
-            indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/"
-        });
-
-        await pyodide.loadPackagesFromImports('micropip');
-        micropip = pyodide.pyimport('micropip');
-
-        // Setup global namespace for interoperability
-        pyodide.runPython(`
-            import js
-            import sys
-            from pyodide.ffi import create_proxy, to_js
-            from js import document
-
-            class PythonConsole:
-                def __init__(self):
-                    self.content = ""
-
-                def write(self, text):
-                    self.content += str(text)
-                    return len(text)
-
-                def flush(self):
-                    js.logToConsole(self.content, False)
-                    self.content = ""
-                    return None
-
-            sys.stdout = PythonConsole()
-            sys.stderr = PythonConsole();
-        `);
-
-        // Setup import system
-        setupPythonImports();
-
-        logToConsole('Python environment loaded successfully!');
-        return pyodide;
-    } catch (error) {
-        logToConsole(`Error loading Pyodide: ${error}`, true);
-        pyodideLoading = false;
-        throw error;
-    }
-}
-
-// Run Python code
-async function runPythonCode() {
-    if (!pyodide) {
-        try {
-            pyodide = await loadPyodide();
-        } catch (error) {
-            logToConsole('Failed to load Python environment.', true);
-            return;
-        }
-    }
-
-    const code = codeEditor.getValue().trim();
-
-    if (!code) {
-        logToConsole('No code to run!', true);
-        return;
-    }
-
-    logToConsole('Running Python code...');
-
-    try {
-        // Update the Python import system
-        setupPythonImports();
-
-        // Execute the Python code
-        const result = await pyodide.runPythonAsync(code);
-
-        // If there's a return value that's not None, log it
-        if (result !== undefined && result !== null) {
-            const jsResult = result.toString();
-            if (jsResult !== 'undefined' && jsResult !== 'None') {
-                logToConsole(`Return value: ${jsResult}`);
-            }
-        }
-
-        logToConsole('Code execution completed.');
-    } catch (error) {
-        logToConsole(`Error: ${error.message}`, true);
-    }
-}
-
-// Log to console with optional error styling
-function logToConsole(message, isError = false) {
-    const logEntry = document.createElement('div');
-    logEntry.textContent = message;
-    if (isError) {
-        logEntry.classList.add('error');
-    }
-    consoleOutput.appendChild(logEntry);
-    consoleOutput.scrollTop = consoleOutput.scrollHeight;
-}
-
-// Clear console
-function clearConsole() {
-    consoleOutput.innerHTML = '';
-}
-
-// Search PyPI packages with version and description
-async function searchPackages(query) {
-    if (!query.trim()) {
-        packageResults.style.display = 'none';
-        return;
-    }
-
-    try {
-        // Using PyPI JSON API for better package info
-        const response = await fetch(`https://pypi.org/pypi/${query}/json`);
-
-        if (response.ok) {
-            const data = await response.json();
-            const packageInfo = {
-                name: data.info.name,
-                version: data.info.version,
-                summary: data.info.summary || "No description available",
-                author: data.info.author || "Unknown author",
-                homepage: data.info.home_page || ""
-            };
-
-            // Display package details
-            packageResults.innerHTML = '';
-
-            const packageItem = document.createElement('div');
-            packageItem.classList.add('package-item');
-
-            packageItem.innerHTML = `
-                <div class="package-item-title">${packageInfo.name} (${packageInfo.version})</div>
-                <div class="package-details">
-                    <div>${packageInfo.summary}</div>
-                    <div>Author: ${packageInfo.author}</div>
-                    ${packageInfo.homepage ? `<div>Homepage: <a href="${packageInfo.homepage}" target="_blank">${packageInfo.homepage}</a></div>` : ''}
-                </div>
-            `;
-
-            packageItem.addEventListener('click', () => {
-                packageInput.value = packageInfo.name;
-                packageResults.style.display = 'none';
-            });
-
-            packageResults.appendChild(packageItem);
-            packageResults.style.display = 'block';
-        } else if (response.status === 404) {
-            // If exact package not found, search for similar packages
-            const similarResponse = await fetch(`https://pypi.org/search/?q=${query}&format=json`);
-
-            if (similarResponse.ok) {
-                const data = await similarResponse.json();
-                const packages = data.results || [];
-
-                packageResults.innerHTML = '';
-
-                if (packages.length === 0) {
-                    const noResults = document.createElement('div');
-                    noResults.classList.add('package-item');
-                    noResults.textContent = 'No packages found';
-                    packageResults.appendChild(noResults);
-                } else {
-                    // Limit to 5 packages for better UX
-                    const limitedPackages = packages.slice(0, 5);
-
-                    limitedPackages.forEach(pkg => {
-                        const packageItem = document.createElement('div');
-                        packageItem.classList.add('package-item');
-
-                        packageItem.innerHTML = `
-                            <div class="package-item-title">${pkg.name} (${pkg.version})</div>
-                            <div class="package-details">
-                                <div>${pkg.summary || "No description available"}</div>
-                            </div>
-                        `;
-
-                        packageItem.addEventListener('click', () => {
-                            packageInput.value = pkg.name;
-                            packageResults.style.display = 'none';
-                        });
-
-                        packageResults.appendChild(packageItem);
-                    });
-                }
-
-                packageResults.style.display = 'block';
-            } else {
-                logToConsole(`Error searching packages: ${similarResponse.statusText}`, true);
-                packageResults.style.display = 'none';
-            }
-        } else {
-            logToConsole(`Error searching packages: ${response.statusText}`, true);
-            packageResults.style.display = 'none';
-        }
-    } catch (error) {
-        // Fallback to simple search
-        try {
-            const response = await fetch(`https://pypi.org/simple/`);
-
-            if (response.ok) {
-                const text = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const packageLinks = Array.from(doc.querySelectorAll('a'));
-
-                // Filter packages that match the query
-                const filteredPackages = packageLinks
-                    .map(link => link.textContent)
-                    .filter(name => name.toLowerCase().includes(query.toLowerCase()))
-                    .slice(0, 10); // Limit to 10 results
-
-                // Display results
-                packageResults.innerHTML = '';
-
-                if (filteredPackages.length === 0) {
-                    const noResults = document.createElement('div');
-                    noResults.classList.add('package-item');
-                    noResults.textContent = 'No packages found';
-                    packageResults.appendChild(noResults);
-                } else {
-                    filteredPackages.forEach(name => {
-                        const packageItem = document.createElement('div');
-                        packageItem.classList.add('package-item');
-                        packageItem.textContent = name;
-                        packageItem.addEventListener('click', () => {
-                            packageInput.value = name;
-                            packageResults.style.display = 'none';
-                        });
-                        packageResults.appendChild(packageItem);
-                    });
-                }
-
-                packageResults.style.display = 'block';
-            } else {
-                logToConsole(`Error searching packages: ${response.statusText}`, true);
-                packageResults.style.display = 'none';
-            }
-        } catch (fallbackError) {
-            logToConsole(`Error searching packages: ${fallbackError.message}`, true);
-            packageResults.style.display = 'none';
-        }
-    }
-}
-
-// Install a package
-async function installPackage(packageName) {
-    if (!packageName.trim()) {
-        logToConsole('Please enter a package name', true);
-        return;
-    }
-
-    if (installedPackages.has(packageName)) {
-        logToConsole(`Package '${packageName}' is already installed.`);
-        return;
-    }
-
-    if (!pyodide) {
-        try {
-            pyodide = await loadPyodide();
-        } catch (error) {
-            logToConsole('Failed to load Python environment.', true);
-            return;
-        }
-    }
-
-    logToConsole(`Installing package: ${packageName}...`);
-
-    try {
-        await micropip.install(packageName);
-        installedPackages.add(packageName);
-        logToConsole(`Package '${packageName}' installed successfully.`);
-    } catch (error) {
-        logToConsole(`Error installing package: ${error.message}`, true);
-    }
-}
-
-// Save and load snippets functionality
-function saveCodeSnippet() {
-    const name = snippetName.value.trim();
-    if (!name) {
-        alert('Please enter a name for your snippet');
-        return;
-    }
-
-    const code = codeEditor.getValue();
-    if (!code) {
-        alert('Cannot save an empty code snippet');
-        return;
-    }
-
-    const description = snippetDescription.value.trim();
-    const timestamp = new Date().toISOString();
-
-    // Get existing snippets or initialize empty array
-    const snippets = JSON.parse(localStorage.getItem('pyodideSnippets') || '[]');
-
-    // Add new snippet
-    snippets.push({
-        id: Date.now().toString(),
-        name,
-        description,
-        code,
-        timestamp
-    });
-
-    // Save to localStorage
-    localStorage.setItem('pyodideSnippets', JSON.stringify(snippets));
-
-    // Close modal and reset fields
-    closeSnippetModal();
-    snippetName.value = '';
-    snippetDescription.value = '';
-
-    logToConsole(`Snippet '${name}' saved successfully.`);
-}
-
-function loadCodeSnippets() {
-    // Get snippets from localStorage
-    const snippets = JSON.parse(localStorage.getItem('pyodideSnippets') || '[]');
-
-    // Clear snippet list
-    snippetList.innerHTML = '';
-
-    if (snippets.length === 0) {
-        const noSnippets = document.createElement('div');
-        noSnippets.classList.add('package-item');
-        noSnippets.textContent = 'No saved snippets found';
-        snippetList.appendChild(noSnippets);
-        return;
-    }
-
-    // Sort by timestamp, newest first
-    snippets.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-    // Populate snippet list
-    snippets.forEach(snippet => {
-        const snippetItem = document.createElement('div');
-        snippetItem.classList.add('snippet-item');
-
-        const formattedDate = new Date(snippet.timestamp).toLocaleString();
-
-        snippetItem.innerHTML = `
-            <div class="snippet-item-header">
-                <div class="snippet-item-title">${snippet.name}</div>
-                <div class="snippet-item-date">${formattedDate}</div>
-            </div>
-            ${snippet.description ? `<div class="snippet-item-description">${snippet.description}</div>` : ''}
-            <div class="snippet-item-actions">
-                <button class="load-snippet-btn" data-id="${snippet.id}">Load</button>
-                <button class="delete-snippet-btn" data-id="${snippet.id}">Delete</button>
+    // Create card header
+    const cardHeader = document.createElement('div');
+    cardHeader.className = 'module-header';
+
+    const moduleNumber = document.createElement('div');
+    moduleNumber.className = 'module-number';
+    moduleNumber.textContent = module.moduleNumber;
+
+    const moduleTitle = document.createElement('h3');
+    moduleTitle.className = 'module-title';
+    moduleTitle.textContent = module.title;
+
+    cardHeader.appendChild(moduleNumber);
+    cardHeader.appendChild(moduleTitle);
+
+    // Create card content
+    const cardContent = document.createElement('div');
+    cardContent.className = 'module-content';
+
+    const description = document.createElement('p');
+    description.className = 'module-description';
+    description.textContent = module.description;
+
+    // Create topics preview if available
+    let topicsPreview = '';
+    if (module.topics && module.topics.length > 0) {
+        const topicsToShow = module.topics.slice(0, 3);
+        topicsPreview = `
+            <div class="module-topics">
+                <h4>Topics</h4>
+                <ul>
+                    ${topicsToShow.map(topic => `<li>${topic}</li>`).join('')}
+                    ${module.topics.length > 3 ? `<li class="more">+${module.topics.length - 3} more topics</li>` : ''}
+                </ul>
             </div>
         `;
+    }
 
-        snippetList.appendChild(snippetItem);
+    // Create module meta information
+    const meta = document.createElement('div');
+    meta.className = 'module-meta';
+
+    meta.innerHTML = `
+        <div class="module-meta-item">
+            <span>${module.lessonCount} Lessons</span>
+        </div>
+        <div class="module-meta-item">
+            <span>${module.estimatedTime}</span>
+        </div>
+    `;
+
+    // Assemble card content
+    cardContent.appendChild(description);
+
+    if (topicsPreview) {
+        const topicsElement = document.createElement('div');
+        topicsElement.innerHTML = topicsPreview;
+        cardContent.appendChild(topicsElement.firstElementChild);
+    }
+
+    cardContent.appendChild(meta);
+
+    // Assemble full card
+    card.appendChild(cardHeader);
+    card.appendChild(cardContent);
+
+    // Add click event to view module
+    card.addEventListener('click', () => {
+        if (!module.locked) {
+            viewModule(module.id);
+        }
     });
 
-    // Add event listeners for load and delete buttons
-    document.querySelectorAll('.load-snippet-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const id = e.target.getAttribute('data-id');
-            const snippet = snippets.find(s => s.id === id);
-            if (snippet) {
-                codeEditor.setValue(snippet.code);
-                closeSnippetModal();
-                logToConsole(`Loaded snippet: ${snippet.name}`);
+    return card;
+}
+
+/**
+ * Process commands for basic reconnaissance lab
+ * @param {string} command - Full command
+ * @param {Array} parts - Command parts
+ * @param {string} mainCommand - Main command
+ * @returns {string} Command output
+ */
+function processBasicReconLab(command, parts, mainCommand) {
+    // Maintain state between commands
+    if (!APP_STATE.terminal.labState) {
+        APP_STATE.terminal.labState = {
+            basicRecon: {
+                dbInitialized: false,
+                scannedHosts: [],
+                currentWorkspace: 'default',
+                discoveredServices: {},
+                msfConsoleActive: false,
+                msfPrompt: 'msf6 > '
             }
-        });
-    });
+        };
+    }
 
-    document.querySelectorAll('.delete-snippet-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const id = e.target.getAttribute('data-id');
-            if (confirm('Are you sure you want to delete this snippet?')) {
-                const filteredSnippets = snippets.filter(s => s.id !== id);
-                localStorage.setItem('pyodideSnippets', JSON.stringify(filteredSnippets));
-                loadCodeSnippets(); // Refresh the list
-                logToConsole('Snippet deleted.');
+    const labState = APP_STATE.terminal.labState.basicRecon;
+
+    if (labState.msfConsoleActive) {
+        return processMsfConsoleCommand(command, parts, mainCommand, labState);
+    }
+
+    switch (mainCommand) {
+        case 'msfconsole':
+            labState.msfConsoleActive = true;
+            return `
+<span class="highlight">                                                  </span>
+<span class="highlight">      .:okOOOkl:.                                </span>
+<span class="highlight">    .xNMMMMMMMMMWO:                              </span>
+<span class="highlight">   :NMMMMMMMMMMMMMMd:                            </span>
+<span class="highlight">  :XMMMMMMMMMMMMMMMMk:                           </span>
+<span class="highlight">  lMMMMMMMMMMMMMMMMMM0:                          </span>
+<span class="highlight">  :XMMMMMMMMMMMMMMMMMWk.                         </span>
+<span class="highlight">   :XMMMMMMMMMMMMMMMMMMo                         </span>
+<span class="highlight">    .lOKKKKKKKKKKKKKKKK0l.                       </span>
+<span class="highlight">                                                  </span>
+
+       =[ metasploit v6.3.4-dev                          ]
++ -- --=[ 2275 exploits - 1192 auxiliary - 398 post       ]
++ -- --=[ 951 payloads - 45 encoders - 11 nops            ]
++ -- --=[ 9 evasion                                       ]
+
+Metasploit tip: View all productivity tips with the tips command
+
+${labState.dbInitialized ?
+    '[*] Connected to msf. Connection type: postgresql.' :
+    '[*] No database connected. Run db_connect to connect to a database'}
+
+${labState.msfPrompt}`;
+
+        case 'msfdb':
+            if (parts[1] === 'init') {
+                labState.dbInitialized = true;
+                return `
+[+] Starting database
+[+] Creating database user 'msf'
+[+] Creating databases 'msf'
+[+] Creating databases 'msf_test'
+[+] Creating configuration file '/usr/share/metasploit-framework/config/database.yml'
+[+] Creating initial database schema
+
+[*] PostgreSQL database started and configured successfully
+[*] To connect to the database at a later time, use db_connect
+`;
             }
-        });
-    });
-}
+            return `
+Usage: msfdb [options]
+  options:
+    init     Initialize the database
+    reinit   Delete and reinitialize the database
+    delete   Delete database and stop using it
+    start    Start the database
+    stop     Stop the database
+    status   Check service status
+    help     Show this help
+`;
 
-function showSaveModal() {
-    modalTitle.textContent = 'Save Code Snippet';
-    modalSaveSection.style.display = 'block';
-    modalLoadSection.style.display = 'none';
-    snippetModal.style.display = 'block';
-}
+        case 'nmap':
+            if (parts.length === 1) {
+                return `
+Nmap 7.93 ( https://nmap.org )
+Usage: nmap [Scan Type(s)] [Options] {target specification}
+`;
+            }
 
-function showLoadModal() {
-    modalTitle.textContent = 'Load Code Snippet';
-    modalSaveSection.style.display = 'none';
-    modalLoadSection.style.display = 'block';
-    loadCodeSnippets();
-    snippetModal.style.display = 'block';
-}
+            // Simple target extraction - in real app, would be more robust
+            const targetMatch = command.match(/\b(?:\d{1,3}\.){3}\d{1,3}(?:\/\d{1,2})?\b/);
+            const target = targetMatch ? targetMatch[0] : 'unknown';
 
-function closeSnippetModal() {
-    snippetModal.style.display = 'none';
-}
+            if (target === '192.168.1.10') {
+                // Record the host as scanned
+                if (!labState.scannedHosts.includes(target)) {
+                    labState.scannedHosts.push(target);
 
-// Handle code templates
-function loadCodeTemplate() {
-    const templateKey = templateSelector.value;
-    if (!templateKey) return;
+                    // Record discovered services
+                    labState.discoveredServices[target] = {
+                        '21': { port: 21, service: 'ftp', version: 'vsftpd 3.0.3' },
+                        '22': { port: 22, service: 'ssh', version: 'OpenSSH 7.9p1' },
+                        '80': { port: 80, service: 'http', version: 'Apache httpd 2.4.38' }
+                    };
+                }
 
-    const template = codeTemplates[templateKey];
-    if (template) {
-        codeEditor.setValue(template);
-        logToConsole(`Loaded template: ${templateSelector.options[templateSelector.selectedIndex].text}`);
-    }
+                return `
+Starting Nmap 7.93 ( https://nmap.org ) at ${new Date().toLocaleString()}
+Nmap scan report for 192.168.1.10
+Host is up (0.0054s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT   STATE SERVICE
+21/tcp open  ftp
+22/tcp open  ssh
+80/tcp open  http
 
-    // Reset selector
-    templateSelector.value = '';
-}
+Nmap done: 1 IP address (1 host up) scanned in 2.41 seconds
+`;
+            } else if (target === '192.168.1.20') {
+                // Record the host as scanned
+                if (!labState.scannedHosts.includes(target)) {
+                    labState.scannedHosts.push(target);
 
-// Collaborative coding functionality
-async function startCollaboration() {
-    try {
-        // In a real implementation, this would connect to a WebSocket server
-        // Here we'll simulate the connection locally
-        sessionId = uuidv4();
-        isCollaborating = true;
-        userRole = 'host';
+                    // Record discovered services
+                    labState.discoveredServices[target] = {
+                        '139': { port: 139, service: 'netbios-ssn', version: 'Microsoft Windows netbios-ssn' },
+                        '445': { port: 445, service: 'microsoft-ds', version: 'Microsoft Windows 7 - 10 microsoft-ds' },
+                        '3389': { port: 3389, service: 'ms-wbt-server', version: 'Microsoft Terminal Services' }
+                    };
+                }
 
-        updateConnectionStatus('connected');
-        collabInfo.style.display = 'block';
-        collabInfo.textContent = `Session ID: ${sessionId}`;
-        collabBtn.textContent = 'End Collaboration';
-        collabBtn.style.backgroundColor = '#ff5252';
+                return `
+Starting Nmap 7.93 ( https://nmap.org ) at ${new Date().toLocaleString()}
+Nmap scan report for 192.168.1.20
+Host is up (0.0067s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT     STATE SERVICE
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+3389/tcp open  ms-wbt-server
 
-        // Initialize collaboration
-        setupCodeSyncListeners();
+Nmap done: 1 IP address (1 host up) scanned in 2.67 seconds
+`;
+            } else if (target === '192.168.1.30') {
+                // Record the host as scanned
+                if (!labState.scannedHosts.includes(target)) {
+                    labState.scannedHosts.push(target);
 
-        logToConsole(`Started collaboration session: ${sessionId}`);
-    } catch (error) {
-        logToConsole(`Failed to start collaboration: ${error.message}`, true);
-        updateConnectionStatus('disconnected');
-    }
-}
+                    // Record discovered services
+                    labState.discoveredServices[target] = {
+                        '22': { port: 22, service: 'ssh', version: 'OpenSSH 8.2p1' },
+                        '5432': { port: 5432, service: 'postgresql', version: 'PostgreSQL DB 12.1' }
+                    };
+                }
 
-async function joinCollaboration() {
-    const joinId = sessionIdInput.value.trim();
+                return `
+Starting Nmap 7.93 ( https://nmap.org ) at ${new Date().toLocaleString()}
+Nmap scan report for 192.168.1.30
+Host is up (0.0042s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT     STATE SERVICE
+22/tcp   open  ssh
+5432/tcp open  postgresql
 
-    if (!joinId) {
-        alert('Please enter a session ID');
-        return;
-    }
+Nmap done: 1 IP address (1 host up) scanned in 2.05 seconds
+`;
+            }
 
-    try {
-        // In a real implementation, this would validate and connect to the session
-        // Here we'll simulate the connection locally
-        sessionId = joinId;
-        isCollaborating = true;
-        userRole = 'guest';
+            if (command.includes('-sV') && target !== 'unknown') {
+                return `
+Starting Nmap 7.93 ( https://nmap.org ) at ${new Date().toLocaleString()}
+Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
+Nmap done: 1 IP address (0 hosts up) scanned in 3.19 seconds
+`;
+            }
 
-        updateConnectionStatus('connected');
-        collabInfo.style.display = 'block';
-        collabInfo.textContent = `Joined session: ${sessionId}`;
-        collabBtn.textContent = 'Leave Session';
-        collabBtn.style.backgroundColor = '#ff5252';
+            return `
+Starting Nmap 7.93 ( https://nmap.org ) at ${new Date().toLocaleString()}
+Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
+Nmap done: 1 IP address (0 hosts up) scanned in 3.19 seconds
+`;
 
-        // Initialize collaboration
-        setupCodeSyncListeners();
-
-        logToConsole(`Joined collaboration session: ${sessionId}`);
-    } catch (error) {
-        logToConsole(`Failed to join session: ${error.message}`, true);
-        updateConnectionStatus('disconnected');
-    }
-}
-
-function endCollaboration() {
-    isCollaborating = false;
-    sessionId = null;
-    userRole = null;
-
-    // Clean up event listeners
-    codeEditor.off('changes', handleCodeChanges);
-
-    updateConnectionStatus('disconnected');
-    collabInfo.style.display = 'none';
-    collabBtn.textContent = 'Start Collaboration';
-    collabBtn.style.backgroundColor = '';
-
-    logToConsole('Ended collaboration session');
-}
-
-function toggleCollaboration() {
-    if (isCollaborating) {
-        endCollaboration();
-    } else {
-        startCollaboration();
-    }
-}
-
-function updateConnectionStatus(status) {
-    connectionIndicator.className = status;
-
-    switch (status) {
-        case 'connected':
-            connectionText.textContent = 'Connected';
-            break;
-        case 'disconnected':
-            connectionText.textContent = 'Not connected';
-            break;
-        case 'connecting':
-            connectionText.textContent = 'Connecting...';
-            break;
+        default:
+            return processGeneralCommand(command);
     }
 }
 
-function setupCodeSyncListeners() {
-    // In a real implementation, these changes would be sent to other users
-    // Here we'll just log the changes
-    codeEditor.on('changes', handleCodeChanges);
+/**
+ * Process Metasploit console commands for recon lab
+ * @param {string} command - Full command
+ * @param {Array} parts - Command parts
+ * @param {string} mainCommand - Main command
+ * @param {Object} labState - Lab state
+ * @returns {string} Command output
+ */
+function processMsfConsoleCommand(command, parts, mainCommand, labState) {
+    // Common MSF commands
+    switch (mainCommand) {
+        case 'exit':
+        case 'quit':
+            labState.msfConsoleActive = false;
+            return '\n[*] You have left the MSF console.\n';
+
+        case 'help':
+            return `
+Core Commands
+=============
+
+    Command       Description
+    -------       -----------
+    ?             Help menu
+    banner        Display an awesome metasploit banner
+    cd            Change the current working directory
+    color         Toggle color
+    connect       Communicate with a host
+    exit          Exit the console
+    get           Gets the value of a context-specific variable
+    getg          Gets the value of a global variable
+    grep          Grep the output of another command
+    help          Help menu
+    history       Show command history
+    load          Load a framework plugin
+    quit          Exit the console
+    route         Route traffic through a session
+    save          Saves the active datastores
+    sessions      Dump session listings and display information about sessions
+    set           Sets a context-specific variable to a value
+    setg          Sets a global variable to a value
+    sleep         Do nothing for the specified number of seconds
+    spool         Write console output into a file as well the screen
+    threads       View and manipulate background threads
+    tips          Show a list of useful productivity tips
+    unload        Unload a framework plugin
+    unset         Unsets one or more context-specific variables
+    unsetg        Unsets one or more global variables
+    version       Show the framework and console library version numbers
+
+
+Database Backend Commands
+========================
+
+    Command           Description
+    -------           -----------
+    analyze           Analyze database information about a specific address or address range
+    db_connect        Connect to an existing data service
+    db_disconnect     Disconnect from the current data service
+    db_export         Export a file containing the contents of the database
+    db_import         Import a scan result file (filetype will be auto-detected)
+    db_nmap           Executes nmap and records the output automatically
+    db_rebuild_cache  Rebuilds the database-stored module cache
+    db_remove         Remove the saved data service entry
+    db_save           Save the current data service connection as the default to reconnect on startup
+    db_status         Show the current data service status
+    hosts             List all hosts in the database
+    loot              List all loot in the database
+    notes             List all notes in the database
+    services          List all services in the database
+    vulns             List all vulnerabilities in the database
+    workspace         Switch between database workspaces
+
+
+Module Commands
+==============
+
+    Command       Description
+    -------       -----------
+    advanced      Displays advanced options for one or more modules
+    back          Move back from the current context
+    info          Displays information about one or more modules
+    loadpath      Searches for and loads modules from a path
+    options       Displays global options or for one or more modules
+    popm          Pops the latest module off the stack and makes it active
+    previous      Sets the previously loaded module as the current module
+    pushm         Pushes the active or list of modules onto the module stack
+    reload_all    Reloads all modules from all defined module paths
+    search        Searches module names and descriptions
+    show          Displays modules of a given type, or all modules
+    use           Interact with a module by name or search term/index
+
+
+Job Commands
+===========
+
+    Command       Description
+    -------       -----------
+    handler       Start a payload handler as job
+    jobs          Displays and manages jobs
+
+
+Resource Script Commands
+=======================
+
+    Command       Description
+    -------       -----------
+    makerc        Save commands entered since start to a file
+    resource      Run the commands stored in a file
+
+
+Developer Commands
+================
+
+    Command       Description
+    -------       -----------
+    edit          Edit the current module or a file with the preferred editor
+    irb           Open an interactive Ruby shell in the current context
+    log           Display framework.log paged to the end if possible
+    pry           Open the Pry debugger on the current module or Framework
+    reload_lib    Reload Ruby library files from specified paths
+
+msf6 > `;
+
+        case 'db_status':
+            if (labState.dbInitialized) {
+                return `[*] Connected to msf. Connection type: postgresql.\n${labState.msfPrompt}`;
+            } else {
+                return `[*] No database connected. Run db_connect to connect to a database\n${labState.msfPrompt}`;
+            }
+
+        case 'db_nmap':
+            if (!labState.dbInitialized) {
+                return `[-] Error: No database connected. Run msfdb init or db_connect.\n${labState.msfPrompt}`;
+            }
+
+            // Simple target extraction - in real app, would be more robust
+            const targetMatch = command.match(/\b(?:\d{1,3}\.){3}\d{1,3}(?:\/\d{1,2})?\b/);
+            const target = targetMatch ? targetMatch[0] : 'unknown';
+
+            if (target === '192.168.1.10') {
+                // Record the host as scanned
+                if (!labState.scannedHosts.includes(target)) {
+                    labState.scannedHosts.push(target);
+                }
+
+                // Record discovered services
+                labState.discoveredServices[target] = {
+                    '21': { port: 21, service: 'ftp', version: 'vsftpd 3.0.3' },
+                    '22': { port: 22, service: 'ssh', version: 'OpenSSH 7.9p1' },
+                    '80': { port: 80, service: 'http', version: 'Apache httpd 2.4.38' }
+                };
+
+                return `
+[*] Nmap: Starting Nmap 7.93 ( https://nmap.org )
+[*] Nmap: Nmap scan report for 192.168.1.10
+[*] Nmap: Host is up (0.0054s latency).
+[*] Nmap: Not shown: 997 closed tcp ports (reset)
+[*] Nmap: PORT   STATE SERVICE VERSION
+[*] Nmap: 21/tcp open  ftp     vsftpd 3.0.3
+[*] Nmap: 22/tcp open  ssh     OpenSSH 7.9p1
+[*] Nmap: 80/tcp open  http    Apache httpd 2.4.38
+[*] Nmap: Nmap done: 1 IP address (1 host up) scanned in 2.41 seconds
+[*] Nmap: finished successfully
+[*] Importing 'nmap_scan_import' data
+[*] Successfully imported 'nmap_scan_import'
+
+${labState.msfPrompt}`;
+            }
+
+            return `
+[*] Nmap: Starting Nmap 7.93 ( https://nmap.org )
+[*] Nmap: Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
+[*] Nmap: Nmap done: 1 IP address (0 hosts up) scanned in 3.19 seconds
+[*] Nmap: finished with errors
+
+${labState.msfPrompt}`;
+
+        case 'hosts':
+            if (!labState.dbInitialized) {
+                return `[-] Error: No database connected. Run msfdb init or db_connect.\n${labState.msfPrompt}`;
+            }
+
+            if (labState.scannedHosts.length === 0) {
+                return `No hosts found in the database.\n${labState.msfPrompt}`;
+            }
+
+            let hostsOutput = `
+Hosts
+=====
+
+address         mac  name  os_name  os_flavor  os_sp  purpose  info  comments
+-------         ---  ----  -------  ---------  -----  -------  ----  --------
+`;
+
+            labState.scannedHosts.forEach(host => {
+                hostsOutput += `${host}                                                \n`;
+            });
+
+            return hostsOutput + labState.msfPrompt;
+
+        case 'services':
+            if (!labState.dbInitialized) {
+                return `[-] Error: No database connected. Run msfdb init or db_connect.\n${labState.msfPrompt}`;
+            }
+
+            if (Object.keys(labState.discoveredServices).length === 0) {
+                return `No services found in the database.\n${labState.msfPrompt}`;
+            }
+
+            let servicesOutput = `
+Services
+========
+
+host          port  proto  name          state  info
+----          ----  -----  ----          -----  ----
+`;
+
+            Object.entries(labState.discoveredServices).forEach(([host, services]) => {
+                Object.values(services).forEach(service => {
+                    servicesOutput += `${host}  ${service.port}    tcp    ${service.service.padEnd(12)}  open   ${service.version || ''}\n`;
+                });
+            });
+
+            return servicesOutput + labState.msfPrompt;
+
+        case 'workspace':
+            if (!labState.dbInitialized) {
+                return `[-] Error: No database connected. Run msfdb init or db_connect.\n${labState.msfPrompt}`;
+            }
+
+            if (parts.length === 1) {
+                return `
+Workspaces
+==========
+
+current  name
+-------  ----
+*        ${labState.currentWorkspace}
+         default
+
+${labState.msfPrompt}`;
+            }
+
+            if (parts[1] === '-a' && parts[2]) {
+                return `[*] Added workspace: ${parts[2]}\n${labState.msfPrompt}`;
+            }
+
+            labState.currentWorkspace = parts[1];
+            return `[*] Workspace: ${parts[1]}\n${labState.msfPrompt}`;
+
+        case 'search':
+            // Simple search implementation
+            if (parts.length === 1) {
+                return `Usage: search [keywords]\nExample: search cve:2020 type:exploit platform:windows\n${labState.msfPrompt}`;
+            }
+
+            const term = parts.slice(1).join(' ').toLowerCase();
+
+            if (term.includes('ftp') || term.includes('vsftpd')) {
+                return `
+Matching Modules
+===============
+
+   #  Name                                   Disclosure Date  Rank       Check  Description
+   -  ----                                   ---------------  ----       -----  -----------
+   0  exploit/unix/ftp/vsftpd_234_backdoor   2011-07-03       excellent  Yes    VSFTPD v2.3.4 Backdoor Command Execution
+   1  auxiliary/scanner/ftp/ftp_version      n/a              normal     No     FTP Banner Scanner
+   2  auxiliary/scanner/ftp/ftp_login        n/a              normal     No     FTP Authentication Scanner
+
+${labState.msfPrompt}`;
+            }
+
+            if (term.includes('ssh') || term.includes('openssh')) {
+                return `
+Matching Modules
+===============
+
+   #  Name                                   Disclosure Date  Rank       Check  Description
+   -  ----                                   ---------------  ----       -----  -----------
+   0  auxiliary/scanner/ssh/ssh_version      n/a              normal     No     SSH Version Scanner
+   1  auxiliary/scanner/ssh/ssh_login        n/a              normal     No     SSH Login Check Scanner
+   2  auxiliary/scanner/ssh/ssh_enumusers    2006-07-19       normal     No     SSH Username Enumeration
+
+${labState.msfPrompt}`;
+            }
+
+            if (term.includes('http') || term.includes('apache')) {
+                return `
+Matching Modules
+===============
+
+   #  Name                                             Disclosure Date  Rank       Check  Description
+   -  ----                                             ---------------  ----       -----  -----------
+   0  auxiliary/scanner/http/http_version              n/a              normal     No     HTTP Version Detection
+   1  auxiliary/scanner/http/apache_userdir_enum       n/a              normal     No     Apache Userdir Module User Enumeration
+   2  auxiliary/scanner/http/brute_dirs                n/a              normal     No     Directory Brute Forcer
+   3  auxiliary/scanner/http/dir_scanner               n/a              normal     No     HTTP Directory Scanner
+
+${labState.msfPrompt}`;
+            }
+
+            return `No results found for "${term}"\n${labState.msfPrompt}`;
+
+        case 'use':
+            if (parts.length === 1) {
+                return `Usage: use module_name\nExample: use exploit/windows/smb/ms17_010_eternalblue\n${labState.msfPrompt}`;
+            }
+
+            const module = parts[1];
+
+            // Return different prompts based on the module type
+            if (module.startsWith('exploit/')) {
+                labState.msfPrompt = `msf6 exploit(${module.replace('exploit/', '')}) > `;
+                return `\n${labState.msfPrompt}`;
+            } else if (module.startsWith('auxiliary/')) {
+                labState.msfPrompt = `msf6 auxiliary(${module.replace('auxiliary/', '')}) > `;
+                return `\n${labState.msfPrompt}`;
+            } else if (module.startsWith('post/')) {
+                labState.msfPrompt = `msf6 post(${module.replace('post/', '')}) > `;
+                return `\n${labState.msfPrompt}`;
+            } else if (module.startsWith('payload/')) {
+                labState.msfPrompt = `msf6 payload(${module.replace('payload/', '')}) > `;
+                return `\n${labState.msfPrompt}`;
+            } else {
+                return `[-] Failed to load module: ${module}\n${labState.msfPrompt}`;
+            }
+
+        case 'banner':
+            return `
+                 _________
+               /          /|      .-------------------.
+              /          / |     /                    /|
+             /_________ / /|    /                    / |
+            |          |/ /|   /--------------------|  |
+            |  ________|/ /   /                     |  /
+            | |        | /   /--------------------- | /
+            | |        |/    | M E T A S P L O I T |/     *
+            | |               -----------------------     /|
+            | |                                          / |
+            | |                                         /  |
+     *      | |                                        /   |
+      \\     | |                                       /    |
+       \\    | |                                      /     |
+        \\   | |                                     /      |
+         \\  | |                                    /       |
+          \\ | |                                   /        |
+           \\| |                                  /         |
+            | |                                 /__________|
+            | |                                |           |
+            | |                                | |_______| |
+            | |                                | |       | |
+            | |                                | |       | |
+            | |                                | |       | |
+            | |                                | |       | |
+            | |                                | |_______| |
+            | |                                |           |
+            | |                                |___________|
+            | |                               /
+            | |                              /
+            | |                             /
+            | |                            /
+            | |                           /
+            | |                          /
+            | |                         /
+            | |                        /
+            | |___________              /
+            |             |            /
+            |             |           /
+            |             |          /
+            |_____________|         /
+
+
+       =[ metasploit v6.3.4-dev                          ]
++ -- --=[ 2275 exploits - 1192 auxiliary - 398 post       ]
++ -- --=[ 951 payloads - 45 encoders - 11 nops            ]
++ -- --=[ 9 evasion                                       ]
+
+${labState.msfPrompt}`;
+
+        case 'back':
+            labState.msfPrompt = 'msf6 > ';
+            return labState.msfPrompt;
+
+        default:
+            if (labState.msfPrompt !== 'msf6 > ') {
+                // In a module context, handle module-specific commands
+                return handleModuleCommands(command, parts, mainCommand, labState);
+            }
+            return `[-] Unknown command: ${mainCommand}\n${labState.msfPrompt}`;
+    }
 }
 
-function handleCodeChanges(instance, changes) {
-    if (!isCollaborating) return;
+/**
+ * Handle Metasploit module-specific commands
+ * @param {string} command - Full command
+ * @param {Array} parts - Command parts
+ * @param {string} mainCommand - Main command
+ * @param {Object} labState - Lab state
+ * @returns {string} Command output
+ */
+function handleModuleCommands(command, parts, mainCommand, labState) {
+    // Extract the current module type and name from the prompt
+    const moduleMatch = labState.msfPrompt.match(/msf6 (\w+)\((.*?)\)/);
 
-    // In a real implementation, we would send these changes over WebSocket
-    // For this demo, we'll just log that changes occurred
-    logToConsole('Code changed (changes would be sent to collaborators)');
+    if (!moduleMatch) {
+        return `[-] Error: Unable to determine module context\n${labState.msfPrompt}`;
+    }
+
+    const moduleType = moduleMatch[1];
+    const moduleName = moduleMatch[2];
+
+    switch (mainCommand) {
+        case 'info':
+            // Return information about the current module
+            if (moduleType === 'auxiliary' && moduleName.includes('scanner/http/http_version')) {
+                return `
+       Name: HTTP Version Detection
+     Module: auxiliary/scanner/http/http_version
+    License: Metasploit Framework License (BSD)
+       Rank: Normal
+
+Provided by:
+  hdm <x@hdm.io>
+
+Check supported:
+  No
+
+Basic options:
+  Name         Current Setting  Required  Description
+  ----         ---------------  --------  -----------
+  Proxies                       no        A proxy chain of format type:host:port[,type:host:port][...]
+  RHOSTS                        yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+  RPORT        80               yes       The target port (TCP)
+  SSL          false            no        Negotiate SSL/TLS for outgoing connections
+  THREADS      1                yes       The number of concurrent threads (max one per host)
+  VHOST                         no        HTTP server virtual host
+
+Description:
+  Detect web server version.
+
+${labState.msfPrompt}`;
+            }
+
+            // Add more module info cases as needed for other modules
+
+            return `
+       Name: ${moduleType.charAt(0).toUpperCase() + moduleType.slice(1)} Module ${moduleName}
+     Module: ${moduleType}/${moduleName}
+    License: Metasploit Framework License (BSD)
+       Rank: Normal
+
+Provided by:
+  Metasploit Team
+
+Basic options:
+  Name         Current Setting  Required  Description
+  ----         ---------------  --------  -----------
+  RHOSTS                        yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+  RPORT        0                yes       The target port (TCP)
+
+Description:
+  This module performs various operations related to ${moduleType}/${moduleName}.
+
+${labState.msfPrompt}`;
+
+        case 'options':
+            // Return options for the current module
+            if (moduleType === 'auxiliary' && moduleName.includes('scanner/http/http_version')) {
+                return `
+Module options (auxiliary/scanner/http/http_version):
+
+   Name         Current Setting  Required  Description
+   ----         ---------------  --------  -----------
+   Proxies                       no        A proxy chain of format type:host:port[,type:host:port][...]
+   RHOSTS                        yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RPORT        80               yes       The target port (TCP)
+   SSL          false            no        Negotiate SSL/TLS for outgoing connections
+   THREADS      1                yes       The number of concurrent threads (max one per host)
+   VHOST                         no        HTTP server virtual host
+
+${labState.msfPrompt}`;
+            }
+
+            // Add more options cases as needed for other modules
+
+            return `
+Module options (${moduleType}/${moduleName}):
+
+   Name         Current Setting  Required  Description
+   ----         ---------------  --------  -----------
+   RHOSTS                        yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
+   RPORT        0                yes       The target port (TCP)
+
+${labState.msfPrompt}`;
+
+        case 'set':
+            if (parts.length < 3) {
+                return `[-] Error: Missing required argument\nUsage: set <option> <value>\n${labState.msfPrompt}`;
+            }
+
+            const option = parts[1].toUpperCase();
+            const value = parts.slice(2).join(' ');
+
+            return `${option} => ${value}\n${labState.msfPrompt}`;
+
+        case 'run':
+        case 'exploit':
+            // Simulate running the module
+            if (moduleType === 'auxiliary' && moduleName.includes('scanner/http/http_version')) {
+                return `
+[*] Scanning 1 host(s)...
+[+] 192.168.1.10:80 Apache/2.4.38 (Debian)
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+
+${labState.msfPrompt}`;
+            }
+
+            // Add more run cases as needed for other modules
+
+            return `
+[*] Running module against specified targets
+[*] No results returned
+[*] ${moduleType} module execution completed
+
+${labState.msfPrompt}`;
+
+        default:
+            return `[-] Unknown command: ${mainCommand}\n${labState.msfPrompt}`;
+    }
 }
-
-// Event listeners
-runButton.addEventListener('click', runPythonCode);
-clearConsoleButton.addEventListener('click', clearConsole);
-
-packageInput.addEventListener('input', () => {
-    searchPackages(packageInput.value);
-});
-
-packageInput.addEventListener('focus', () => {
-    if (packageInput.value.trim()) {
-        searchPackages(packageInput.value);
-    }
-});
-
-document.addEventListener('click', (event) => {
-    if (!packageResults.contains(event.target) && event.target !== packageInput) {
-        packageResults.style.display = 'none';
-    }
-});
-
-installButton.addEventListener('click', () => {
-    installPackage(packageInput.value);
-});
-
-saveButton.addEventListener('click', showSaveModal);
-loadButton.addEventListener('click', showLoadModal);
-closeModal.addEventListener('click', closeSnippetModal);
-saveSnippetButton.addEventListener('click', saveCodeSnippet);
-
-templateSelector.addEventListener('change', loadCodeTemplate);
-
-// Theme toggle
-themeSwitch.addEventListener('change', toggleTheme);
-
-// File System
-fileSystemBtn.addEventListener('click', showFileSystemModal);
-document.querySelectorAll('#file-system-modal .close-modal').forEach(el => {
-    el.addEventListener('click', closeFileSystemModal);
-});
-window.addEventListener('click', (event) => {
-    if (event.target === fileSystemModal) {
-        closeFileSystemModal();
-    }
-});
-newFileBtn.addEventListener('click', createNewFile);
-newFolderBtn.addEventListener('click', createNewFolder);
-saveFileBtn.addEventListener('click', saveFile);
-deleteFileBtn.addEventListener('click', deleteFile);
-
-// Package Browser
-browsePackagesBtn.addEventListener('click', showPackageBrowser);
-document.querySelectorAll('#package-browser-modal .close-modal').forEach(el => {
-    el.addEventListener('click', closePackageBrowserModal);
-});
-window.addEventListener('click', (event) => {
-    if (event.target === packageBrowserModal) {
-        closePackageBrowserModal();
-    }
-});
-
-// Collaboration
-collabBtn.addEventListener('click', toggleCollaboration);
-joinSessionBtn.addEventListener('click', joinCollaboration);
-
-// Close modal when clicking outside of it
-window.addEventListener('click', (event) => {
-    if (event.target === snippetModal) {
-        closeSnippetModal();
-    }
-});
-
-// Key shortcuts
-document.addEventListener('keydown', (event) => {
-    // Ctrl+Enter to run code
-    if (event.ctrlKey && event.key === 'Enter') {
-        runPythonCode();
-        event.preventDefault();
-    }
-
-    // Escape to close modals
-    if (event.key === 'Escape') {
-        if (snippetModal.style.display === 'block') {
-            closeSnippetModal();
-        }
-        if (fileSystemModal.style.display === 'block') {
-            closeFileSystemModal();
-        }
-        if (packageBrowserModal.style.display === 'block') {
-            closePackageBrowserModal();
-        }
-    }
-});
-
-// Make logToConsole available to Python
-window.logToConsole = logToConsole;
-
-// Set default code on startup
-codeEditor.setValue(`# Welcome to Real Python Execution
-# This is a Python WebAssembly environment
-
-# Try out some basic Python code:
-import sys
-print(f"Python version: {sys.version}")
-print("Hello, World!")
-
-# Or explore DOM manipulation:
-# document.getElementById('preview').contentDocument.body.innerHTML = "<h1>Hello from Python!</h1>"
-
-# Select a template from the dropdown for more examples
-`);
-
-// Load Pyodide on page load to speed up first execution
-document.addEventListener('DOMContentLoaded', () => {
-    // Delay loading to ensure the page renders first
-    setTimeout(() => {
-        loadPyodide().catch(error => {
-            console.error('Failed to pre-load Pyodide:', error);
-        });
-    }, 1000);
-});
