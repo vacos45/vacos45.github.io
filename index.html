@@ -8,7 +8,10 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+    rel="stylesheet"
+  />
 </head>
 <body>
   <!-- Loader -->
@@ -18,8 +21,9 @@
 
   <!-- Main Content -->
   <div id="content" class="hidden">
-    <!-- Header with Parallax Background -->
+    <!-- Header with Particle Background -->
     <header class="parallax">
+      <canvas id="particle-canvas"></canvas>
       <div class="header-overlay">
         <div class="container">
           <h1>Advanced Metasploit Mastery</h1>
@@ -44,13 +48,10 @@
       <section id="intro" class="content-section fade-in">
         <h2>Introduction</h2>
         <p>
-          Welcome to the advanced guide on using Metasploit on Kali Linux.
-          This resource dives deep into intricate configurations, custom module
-          development, and automated exploitation techniques.
+          Welcome to the advanced guide on using Metasploit on Kali Linux. This resource dives deep into intricate configurations, custom module development, and automated exploitation techniques.
         </p>
         <p class="disclaimer">
-          <strong>Disclaimer:</strong> All content is intended for educational
-          purposes only. Unauthorized use of these tools is illegal and unethical.
+          <strong>Disclaimer:</strong> All content is intended for educational purposes only. Unauthorized use of these tools is illegal and unethical.
         </p>
       </section>
 
@@ -58,8 +59,7 @@
       <section id="installation" class="content-section fade-in">
         <h2>Installation & Updates</h2>
         <p>
-          Although Kali Linux includes Metasploit, advanced users often need
-          custom configurations and updates.
+          Although Kali Linux includes Metasploit, advanced users often need custom configurations and updates.
         </p>
         <ol>
           <li>
@@ -81,19 +81,17 @@
       <section id="basics" class="content-section fade-in">
         <h2>Basic Commands & Navigation</h2>
         <p>
-          Launch Metasploit with <code>msfconsole</code> and try these basic commands:
+          Launch Metasploit with <code>msfconsole</code> and experiment with these commands:
         </p>
         <ul>
           <li><code>help</code> – Displays available commands.</li>
           <li><code>search</code> – Finds exploits and modules.</li>
           <li>
-            <code>use</code> – Selects a module (e.g.,
-            <code>use exploit/windows/smb/ms17_010_eternalblue</code>).
+            <code>use</code> – Selects a module (e.g., <code>use exploit/windows/smb/ms17_010_eternalblue</code>).
           </li>
           <li><code>show options</code> – Lists module parameters.</li>
           <li>
-            <code>set</code> – Configures module options (e.g.,
-            <code>set RHOSTS 192.168.1.100</code>).
+            <code>set</code> – Configures module options (e.g., <code>set RHOSTS 192.168.1.100</code>).
           </li>
           <li><code>exploit</code> – Executes the attack.</li>
         </ul>
@@ -109,7 +107,7 @@
           <button class="accordion-header">Auxiliary Modules & Scanning</button>
           <div class="accordion-content">
             <p>
-              Use auxiliary modules for network scanning and vulnerability detection.
+              Use auxiliary modules for comprehensive network scanning and vulnerability detection.
             </p>
             <pre>
 use auxiliary/scanner/portscan/tcp
@@ -149,7 +147,7 @@ class MetasploitModule < Msf::Exploit::Remote
 
   def exploit
     print_status("Executing custom exploit...")
-    # Custom exploit logic goes here
+    // Custom exploit logic here
   end
 end
             </pre>
@@ -161,8 +159,7 @@ end
       <section id="customization" class="content-section fade-in">
         <h2>Customization & Module Development</h2>
         <p>
-          Advanced users tailor Metasploit by developing custom modules, integrating
-          automated workflows, and leveraging plugins.
+          Advanced users tailor Metasploit by developing custom modules, integrating automated workflows, and leveraging plugins.
         </p>
         <ul>
           <li>Develop custom modules using Ruby.</li>
@@ -174,17 +171,18 @@ end
         </p>
       </section>
 
-      <!-- Interactive Terminal Section -->
+      <!-- Ultra-Enhanced Interactive Terminal Section -->
       <section id="terminal" class="content-section fade-in">
         <h2>Interactive Command Terminal</h2>
         <p>
-          Try out some simulated Metasploit commands below. Type a command and hit Enter.
+          Experience our next-generation terminal simulator with command history, dynamic suggestions, and realistic delays. Type a command and hit Enter.
         </p>
-        <div id="terminal-container">
+        <div id="enhanced-terminal">
           <div id="terminal-output"></div>
           <div id="terminal-input-line">
             <span class="prompt">msf&gt;</span>
-            <input type="text" id="terminal-input" autocomplete="off" placeholder="Enter command..." />
+            <input type="text" id="terminal-input" autocomplete="off" placeholder="Type your command here..." />
+            <span class="blinking-cursor"></span>
           </div>
         </div>
       </section>
