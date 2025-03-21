@@ -3,76 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vacos Roblox - Discord Community</title>
+    <title>RoScripts | Premium Roblox Scripts Collection</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <i class="fab fa-discord"></i>
-                <h1>Vacos Roblox</h1>
+    <header class="site-header">
+        <div class="container">
+            <div class="logo-container">
+                <div class="logo">RoScripts</div>
+                <p class="tagline">Elevate Your Roblox Experience</p>
             </div>
-            <p class="tagline">Scripts & Leaks for Roblox Games</p>
-        </header>
+            <nav class="main-nav">
+                <button class="menu-toggle" aria-label="Toggle menu">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="#" class="active">Home</a></li>
+                    <li><a href="#trending">Trending</a></li>
+                    <li><a href="#categories">Categories</a></li>
+                    <li><a href="#submit">Submit Script</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-        <main>
-            <div class="discord-card">
-                <div class="card-header">
-                    <i class="fab fa-discord"></i>
-                    <h2>Join Our Discord Community</h2>
-                </div>
-                <p>Get access to exclusive scripts, game leaks, and connect with fellow players!</p>
-                <div class="discord-link">
-                    <a href="https://discord.gg/rNg3ycbAQb" target="_blank" id="discord-button">
-                        <i class="fab fa-discord"></i> Join Discord Server
-                    </a>
-                </div>
-                <div class="server-stats">
-                    <div class="stat">
-                        <i class="fas fa-users"></i>
-                        <span id="member-count">Loading...</span>
-                        <p>Members</p>
-                    </div>
-                    <div class="stat">
-                        <i class="fas fa-code"></i>
-                        <span id="script-count">100+</span>
-                        <p>Scripts</p>
-                    </div>
-                    <div class="stat">
-                        <i class="fas fa-gamepad"></i>
-                        <span id="game-count">50+</span>
-                        <p>Games Supported</p>
-                    </div>
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Discover <span class="highlight">Powerful</span> Roblox Scripts</h1>
+                <p>Explore our curated collection of high-quality scripts to enhance your gameplay</p>
+                <div class="search-container">
+                    <input type="text" placeholder="Search for scripts..." id="script-search">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
                 </div>
             </div>
+        </div>
+        <div class="hero-overlay"></div>
+    </section>
 
-            <div class="features">
-                <div class="feature">
-                    <i class="fas fa-robot"></i>
-                    <h3>Roblox Scripts</h3>
-                    <p>Access powerful scripts for various Roblox games</p>
+    <section class="featured-scripts" id="trending">
+        <div class="container">
+            <h2 class="section-title">Trending Scripts</h2>
+            <div class="scripts-grid" id="featured-scripts-grid">
+                <!-- Scripts will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <section class="categories" id="categories">
+        <div class="container">
+            <h2 class="section-title">Browse by Category</h2>
+            <div class="categories-grid">
+                <div class="category-card" data-category="gameplay">
+                    <div class="category-icon"><i class="fas fa-gamepad"></i></div>
+                    <h3>Gameplay</h3>
+                    <p>Enhance your gameplay experience</p>
                 </div>
-                <div class="feature">
-                    <i class="fas fa-unlock-alt"></i>
-                    <h3>Game Leaks</h3>
-                    <p>Get the latest leaks and updates before anyone else</p>
+                <div class="category-card" data-category="ui">
+                    <div class="category-icon"><i class="fas fa-layer-group"></i></div>
+                    <h3>UI Scripts</h3>
+                    <p>Custom interfaces and menus</p>
                 </div>
-                <div class="feature">
-                    <i class="fas fa-users"></i>
-                    <h3>Community Support</h3>
-                    <p>24/7 support from our active community members</p>
+                <div class="category-card" data-category="automation">
+                    <div class="category-icon"><i class="fas fa-robot"></i></div>
+                    <h3>Automation</h3>
+                    <p>Automate repetitive tasks</p>
+                </div>
+                <div class="category-card" data-category="visuals">
+                    <div class="category-icon"><i class="fas fa-eye"></i></div>
+                    <h3>Visual Effects</h3>
+                    <p>Enhanced visuals and effects</p>
                 </div>
             </div>
-        </main>
+        </div>
+    </section>
 
-        <footer>
-            <p>&copy; 2025 Vacos Roblox Community | All rights reserved</p>
-            <p class="disclaimer">This website is not affiliated with Roblox Corporation</p>
-        </footer>
+    <section class="script-viewer hidden" id="script-viewer">
+        <div class="container">
+            <div class="script-details">
+                <div class="script-header">
+                    <h2 id="script-title">Script Title</h2>
+                    <div class="script-meta">
+                        <span class="script-author"><i class="fas fa-user"></i> <span id="script-author">Author</span></span>
+                        <span class="script-date"><i class="fas fa-calendar"></i> <span id="script-date">Date</span></span>
+                        <span class="script-category"><i class="fas fa-tag"></i> <span id="script-category">Category</span></span>
+                    </div>
+                </div>
+                <div class="script-actions">
+                    <button class="btn copy-btn" id="copy-script"><i class="fas fa-copy"></i> Copy Code</button>
+                    <button class="btn download-btn" id="download-script"><i class="fas fa-download"></i> Download</button>
+                    <button class="btn close-btn" id="close-viewer"><i class="fas fa-times"></i> Close</button>
+                </div>
+                <div class="script-description" id="script-description">
+                    <!-- Script description goes here -->
+                </div>
+                <div class="code-container">
+                    <pre><code class="language-lua" id="script-code">-- Script code will be displayed here</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta" id="submit">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Have a Script to Share?</h2>
+                <p>Join our community and share your creations with Roblox enthusiasts worldwide</p>
+                <button class="btn primary-btn" id="submit-script-btn">Submit Your Script</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Stay Updated</h2>
+                <p>Subscribe to our newsletter to receive the latest scripts and updates</p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <input type="email" placeholder="Your email address" required>
+                    <button type="submit" class="btn">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo">RoScripts</div>
+                    <p>Your ultimate destination for Roblox scripts</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h3>Navigation</h3>
+                        <ul>
+                            <li><a href="#">Home</a></li>
+                            <li><a href="#trending">Trending</a></li>
+                            <li><a href="#categories">Categories</a></li>
+                            <li><a href="#submit">Submit Script</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Resources</h3>
+                        <ul>
+                            <li><a href="#">Documentation</a></li>
+                            <li><a href="#">Tutorials</a></li>
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#">Support</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Community</h3>
+                        <ul>
+                            <li><a href="#">Discord</a></li>
+                            <li><a href="#">Twitter</a></li>
+                            <li><a href="#">YouTube</a></li>
+                            <li><a href="#">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 RoScripts. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal for submitting scripts -->
+    <div class="modal" id="submit-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Submit Your Script</h2>
+            <form id="script-submit-form">
+                <div class="form-group">
+                    <label for="script-name">Script Name</label>
+                    <input type="text" id="script-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="script-category-select">Category</label>
+                    <select id="script-category-select" required>
+                        <option value="">Select a category</option>
+                        <option value="gameplay">Gameplay</option>
+                        <option value="ui">UI Scripts</option>
+                        <option value="automation">Automation</option>
+                        <option value="visuals">Visual Effects</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="script-description-input">Description</label>
+                    <textarea id="script-description-input" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="script-code-input">Script Code</label>
+                    <textarea id="script-code-input" rows="10" class="code-input" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="author-name">Your Name</label>
+                    <input type="text" id="author-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="author-email">Your Email</label>
+                    <input type="email" id="author-email" required>
+                </div>
+                <button type="submit" class="btn primary-btn">Submit Script</button>
+            </form>
+        </div>
     </div>
 
+    <!-- Prism.js for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
